@@ -11,7 +11,7 @@ import VesselOverview from "./pages/vessel/VesselOverview";
 import DispatchedGroupedView from "./pages/transactions/DispatchedGroupedView";
 import EBincard from "./pages/transactions/eBinCard";
 import LowStock from "./pages/inventory/LowStock";
-import LoginPage from "./pages/auth/LoginPage";
+
 import PurchaseOrders from "./pages/vendors/PurchaseOrders";
 import CreatePO from "./pages/vendors/CreatePO";
 import RequireAuth from "./common/components/RequireAuth";
@@ -19,6 +19,7 @@ import VendorDirectory from "./pages/vendors/VendorDirectory";
 import useWindowWidth from "./common/components/useWindowWidth";
 import useSidebarStore from "./stores/useSidebarStore";
 import DevPage from "./pages/DevPage";
+import LoginPage from "./pages/auth/LoginPage";
 
 function App() {
   const location = useLocation();

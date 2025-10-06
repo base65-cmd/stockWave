@@ -14,7 +14,6 @@ import analyticsRoutes from "./routes/analytics.route.js";
 import authRoutes from "./routes/auth.route.js";
 import purchaseRoutes from "./routes/purchase.route.js";
 import vendorRoutes from "./routes/vendor.route.js";
-import { log } from "console";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -22,11 +21,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowed = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 //Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: allowed, credentials: true })); // Middleware to enable CORS
+app.use(cors({ origin: allowedOrigins, credentials: true })); // Middleware to enable CORS
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -52,4 +51,5 @@ async function initializeDB() {
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   await initializeDB();
+  console.log(allowedOrigins);
 });
