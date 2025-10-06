@@ -40,13 +40,7 @@ app.use("/api/vendor", vendorRoutes);
 // initialize DB connection
 async function initializeDB() {
   try {
-    const schemaPath = path.join(
-      path.resolve(),
-      "server",
-      "lib",
-      "db",
-      "schema.sql"
-    );
+    const schemaPath = path.join(path.resolve(), "lib", "db", "schema.sql");
     const schema = fs.readFileSync(schemaPath, "utf-8");
     await pool.query(schema);
     console.log("Database initialized successfully.");
