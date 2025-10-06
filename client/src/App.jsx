@@ -9,7 +9,6 @@ import SIS from "./pages/transactions/SIS";
 import TransactionsPage from "./pages/transactions/TransactionsPage";
 import VesselOverview from "./pages/vessel/VesselOverview";
 import DispatchedGroupedView from "./pages/transactions/DispatchedGroupedView";
-import DispatchRecords from "./pages/transactions/DispatchRecords";
 import EBincard from "./pages/transactions/eBinCard";
 import LowStock from "./pages/inventory/LowStock";
 import LoginPage from "./pages/auth/LoginPage";
