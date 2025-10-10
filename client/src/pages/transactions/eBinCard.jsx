@@ -7,6 +7,8 @@ import { useInventoryStore } from "../../stores/useInventoryStore";
 import AutocompleteInput from "../../common/components/AutoCompleteInput";
 import { motion } from "framer-motion";
 import DispatchedItemsModal from "../../common/components/DispatchedItems";
+import { DatePicker, Input, Select } from "antd";
+import dayjs from "dayjs";
 
 const EBincard = () => {
   const [showPopular, setShowPopular] = useState(false);
@@ -39,6 +41,7 @@ const EBincard = () => {
     fetchDispatchedItemById,
     fetchDepartments,
     fetchVessels,
+    dispatchLoading,
     fetchFrequentlyDispatchedItems,
   } = useDispatchStore();
   const { fetchAllInventory } = useInventoryStore();
@@ -405,29 +408,29 @@ const EBincard = () => {
   return (
     <>
       <PageHeader title={"e-BinCard"} />
-      <div className="m-3 space-y-6">
+      <div className="m-3 space-y-6 min-h-[calc(100vh-170px)]">
         {/* Filters */}
         <div className="bg-white p-5 rounded-lg shadow space-x-6 space-y-4 md:space-y-0 md:flex md:items-end md:justify-between">
           <div className="space-y-2 w-full md:w-1/4">
-            <label className="text-sm text-gray-600">Start Date</label>
-            <input
-              type="date"
-              className="w-full border rounded px-3 py-2 text-sm"
-              value={filters.startDate}
-              onChange={(e) =>
-                setFilters({ ...filters, startDate: e.target.value })
+            <label className="text-sm text-slate-600">Start Date</label>
+            <DatePicker
+              className="w-full rounded-lg"
+              format="YYYY-MM-DD"
+              value={filters.startDate ? dayjs(filters.startDate) : null}
+              onChange={(date, dateString) =>
+                setFilters({ ...filters, startDate: dateString })
               }
             />
           </div>
 
           <div className="space-y-2 w-full md:w-1/4">
-            <label className="text-sm text-gray-600">End Date</label>
-            <input
-              type="date"
-              className="w-full border rounded px-3 py-2 text-sm"
-              value={filters.endDate}
-              onChange={(e) =>
-                setFilters({ ...filters, endDate: e.target.value })
+            <label className="text-sm text-slate-600">End Date</label>
+            <DatePicker
+              className="w-full rounded-lg"
+              format="YYYY-MM-DD"
+              value={filters.endDate ? dayjs(filters.endDate) : null}
+              onChange={(date, dateString) =>
+                setFilters({ ...filters, endDate: dateString })
               }
             />
           </div>
@@ -442,25 +445,23 @@ const EBincard = () => {
                 : inputValue
             }
             label={"Item"}
-            className={"w-full border! border-black!"}
+            skipConfig={true}
+            className={"w-full"}
             className2={"w-full md:w-1/4"}
           />
           <div className="space-y-2 w-full md:w-1/4">
             <label className="text-sm text-gray-600">Vessel/Dept</label>
-            <select
-              className="w-full border rounded px-3 py-2 text-sm"
+            <Select
+              className="w-full px-3 py-2 text-sm"
               value={filters.vesselDept}
-              onChange={(e) =>
-                setFilters({ ...filters, vesselDept: e.target.value })
+              onChange={(value) =>
+                setFilters({ ...filters, vesselDept: value })
               }
-            >
-              <option value="">Select</option>
-              {vesselDepartment.map((vd) => (
-                <option key={vd.id} value={vd.name}>
-                  {vd.name}
-                </option>
-              ))}
-            </select>
+              options={vesselDepartment.map((vd) => ({
+                label: vd.name,
+                value: vd.name,
+              }))}
+            ></Select>
           </div>
         </div>
 
@@ -468,7 +469,7 @@ const EBincard = () => {
         <div className="flex justify-between items-center">
           <button
             onClick={() => handleSearch(searchId)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors"
           >
             Search
           </button>
@@ -482,14 +483,15 @@ const EBincard = () => {
                 setShowStats(false);
                 setShowPopular(!showPopular);
               }}
-              className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-2 rounded hover:bg-yellow-200"
+              className="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-lg hover:bg-amber-200 transition-all shadow-sm"
             >
               <Star size={16} />
               Popular Items
             </button>
+
             <button
               onClick={() => setShowStats(!showStats)}
-              className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-2 rounded hover:bg-green-200"
+              className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-200 transition-all shadow-sm"
             >
               <BarChart size={16} />
               View Stats
@@ -665,18 +667,33 @@ const EBincard = () => {
         )}
 
         {/* Show Dispatch Model */}
-        {dispatchedItems.length > 0 && (
-          <DispatchedItemsModal
-            stock_id={selectedItemId}
-            tableContext="dispatch-modal"
-            dispatchedItems={dispatchedItems}
-            dispatchRecords={dispatchRecord}
-            index={0}
-            viewMode={viewMode}
-            dispatchedItemsColumns={dispatchedItemsColumns}
-            setDispatchedItems={setDispatchedItems}
-            setSelectedItemId={setSelectedItemId}
-          />
+        {dispatchLoading ? (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white/90 rounded-2xl shadow-lg p-8 flex flex-col items-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
+              />
+              <p className="mt-4 text-slate-600 font-medium text-sm">
+                Loading dispatch details...
+              </p>
+            </div>
+          </div>
+        ) : (
+          dispatchedItems.length > 0 && (
+            <DispatchedItemsModal
+              stock_id={selectedItemId}
+              tableContext="dispatch-modal"
+              dispatchedItems={dispatchedItems}
+              dispatchRecords={dispatchRecord}
+              index={0}
+              viewMode={viewMode}
+              dispatchedItemsColumns={dispatchedItemsColumns}
+              setDispatchedItems={setDispatchedItems}
+              setSelectedItemId={setSelectedItemId}
+            />
+          )
         )}
       </div>
     </>

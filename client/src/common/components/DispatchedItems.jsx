@@ -24,13 +24,13 @@ const DispatchedItemsModal = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-lg h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-30%)] my-8 animate-slide-up relative"
+        className="bg-white rounded-lg h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-8%)] md:w-[calc(100vw-15%)] lg:w-[calc(100vw-30%)] my-8 animate-slide-up relative"
       >
         <header className="flex items-center justify-between border-b border-gray-200 p-5">
           <h2 className="text-xl font-semibold text-gray-800">Transactions</h2>
           <div className="w-fit flex items-center gap-2">
             <IconButton icon={Printer} />
-            <button
+            <div
               onClick={() => {
                 setDispatchedItems([]);
                 setSelectedItemId(null);
@@ -49,7 +49,7 @@ const DispatchedItemsModal = ({
                   // setIndex(null);
                 }}
               />
-            </button>
+            </div>
           </div>
         </header>
 

@@ -36,8 +36,8 @@ const HomePage = () => {
   const [records, setRecords] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [inputValue, setInputValue] = useState("Engine OIL Filter 1r-1808");
-  const { fetchAllDispatchedItems } = useDispatchStore();
+  const [inputValue, setInputValue] = useState("Product_230 PN-00230");
+  const { fetchAllDispatchedItems, fetchVessels, vessels } = useDispatchStore();
   const { fetchAllInventory, getLowInventory, getOutOfStock } =
     useInventoryStore();
   const [lowStock, setLowStock] = useState([]);
@@ -46,17 +46,18 @@ const HomePage = () => {
 
   // Start of
   const vesselMap = {
-    "Defender 1": "Def 1",
-    "Defender 2": "Def 2",
-    "Defender 3": "Def 3",
-    "Defender 4": "Def 4",
-    "Defender 5": "Def 5",
-    "Defender 6": "Def 6",
-    "Defender 7": "Def 7",
-    "Defender 8": "Def 8",
-    "Defender 9": "Def 9",
-    "Defender 10": "Def 10",
+    "Sea Wanderer": "Sea Wan",
+    "Aurora’s Wake": "Aurora",
+    "Blue Horizon": "Blue Hor",
+    "The Mariner’s Star": "Mariner",
+    "Ocean Whisper": "Ocean Whis",
+    "Tempest Wind": "Tempest",
+    "Eternal Tide": "Eternal",
+    "Silver Gull": "Silver",
+    "Wave Dancer": "Wave Dan",
+    "Voyager’s Dream": "Voyager",
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -663,7 +664,7 @@ const HomePage = () => {
                   onSelect={handleSelect}
                   setValue={setInputValue}
                   value={inputValue}
-                  className={"border! border-gray-300!"}
+                  className={"border! border-gray-300! py-2!"}
                   className2={"w-full"}
                 />
                 <X

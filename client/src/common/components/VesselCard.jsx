@@ -34,7 +34,7 @@ const VesselCard = ({ vessel, onClick }) => (
 
     {/* Vessel Name */}
     <h3 className="text-base font-semibold text-gray-800 truncate">
-      MV {vessel.vessel_name}
+      {vessel.vessel_name}
     </h3>
 
     {/* Grid Info */}

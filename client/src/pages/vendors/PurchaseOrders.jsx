@@ -17,6 +17,7 @@ import DashboardCard from "../../common/components/DashboardCard";
 import { Dropdown, Space } from "antd";
 import PurchaseOrderDetail from "../../common/components/PurchaseOrderDetail";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const currencies = [
   { code: "USD", name: "US Dollar", symbol: "$" },
@@ -59,16 +60,6 @@ const PurchaseOrders = () => {
       setPurchaseOrderList(result);
     };
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (!e.target.closest(".dropdown-menu")) {
-        setMenuPos(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const columns = useMemo(
@@ -243,28 +234,6 @@ const PurchaseOrders = () => {
               key: 3,
             },
           ];
-          // const handleClick = (e) => {
-          //   const rect = e.currentTarget.getBoundingClientRect();
-          //   const menuWidth = 192; // ~12rem (48 Tailwind units or w-48)
-          //   const padding = 16;
-
-          //   let left = rect.right;
-          //   const rightEdge = left + menuWidth;
-
-          //   // Adjust if menu would go off screen
-          //   if (rightEdge > window.innerWidth - padding) {
-          //     left = window.innerWidth - menuWidth - padding;
-          //   }
-
-          //   setMenuPos({
-          //     x: left,
-          //     y: rect.bottom + window.scrollY,
-          //     purchaseId,
-          //   });
-
-          //   setIndex(row.index);
-          // };
-
           return (
             <Dropdown menu={{ items }} trigger={["click"]}>
               <Space>
@@ -281,9 +250,9 @@ const PurchaseOrders = () => {
   );
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-80px)]">
+    <div className="flex flex-col min-h-[calc(100vh-140px)]">
       <PageHeader
-        title={"Purchase Orders"}
+        title="Purchase Orders"
         button={[
           {
             name: "Create Purchase Order",
@@ -293,7 +262,8 @@ const PurchaseOrders = () => {
           },
         ]}
       />
-      <div className="p-3">
+
+      <div className="p-3 space-y-4">
         {viewPODetail && (
           <PurchaseOrderDetail
             order={PurchaseOrderItems}
@@ -304,59 +274,63 @@ const PurchaseOrders = () => {
             }}
           />
         )}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 h-35">
-          <div className="rounded-lg shadow w-full bg-white">
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="w-full  backdrop-blur-sm">
             <DashboardCard
-              title={"Total Orders"}
+              title="Total Orders"
               icon={ShoppingCart}
-              icon_bg={"bg-green-300"}
+              icon_bg="bg-green-300"
               value={purchaseOrderList.length}
               trendPercent={12}
               trendUp={false}
             />
           </div>
-          <div className="rounded-lg shadow w-full bg-white">
+          <div>
             <DashboardCard
               title="Orders Last 7 Days"
               icon={CalendarClock}
-              icon_bg={"bg-purple-300"}
+              icon_bg="bg-purple-300"
               value="56"
               trendPercent={-8}
               trendUp={false}
             />
           </div>
-          <div className="rounded-lg shadow w-full bg-white">
+          <div>
             <DashboardCard
               title="Deliveries Due This Week"
               icon={Truck}
-              icon_bg={"bg-pink-300"}
+              icon_bg="bg-pink-300"
               value="21"
               trendPercent={5}
-              trendUp={true}
+              trendUp
             />
           </div>
-          <div className="rounded-lg shadow w-full bg-white">
+          <div>
             <DashboardCard
               title="Delayed Orders"
               icon={Truck}
-              icon_bg={"bg-blue-300"}
+              icon_bg="bg-blue-300"
               value="21"
               trendPercent={5}
-              trendUp={true}
+              trendUp
             />
           </div>
-          <div className="rounded-lg shadow w-full bg-white">
+          <div>
             <DashboardCard
               title="Pending Approvals"
               icon={Truck}
-              icon_bg={"bg-yellow-300"}
+              icon_bg="bg-yellow-300"
               value="21"
               trendPercent={5}
-              trendUp={true}
+              trendUp
             />
           </div>
         </div>
-        <div className="space-x-2 mt-3 border border-gray-200 bg-white rounded-lg p-1 shadow w-fit">
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-2 overflow-x-auto mt-3 border border-gray-200 bg-white/80 rounded-2xl p-2 shadow-sm w-full sm:w-fit">
           {POFilters.map((filter, index) => (
             <button
               key={index}
@@ -398,38 +372,49 @@ const PurchaseOrders = () => {
                   setPurchaseOrderList(originalPORef.current);
                 }
               }}
-              className={`rounded-[6px] px-2 py-[6px] font-semibold text-sm cursor-pointer transition-colors duration-150 ${
+              className={`rounded-lg px-3 py-1.5 font-semibold text-sm cursor-pointer transition-colors duration-150 ${
                 currentFilter === index
-                  ? " border-b-2 border-blue-600 text-blue-600 transition-colors duration-150"
-                  : "text-gray-500"
-              } `}
+                  ? "border-b-2 border-blue-600 text-blue-600"
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
             >
               {filter}
             </button>
           ))}
         </div>
 
-        <div className="py-3 bg-white rounded-lg shadow mt-3">
-          <TableContainer
-            isPagination={true}
-            isSelect={true}
-            isLoading={purchaseLoading}
-            isGlobalFilter={true}
-            columns={columns || []}
-            data={purchaseOrderList || []}
-            customPageSize={10}
-            divclassName="my-2 col-span-12 overflow-x-auto lg:col-span-12"
-            tableclassName="hover group dataTable w-full text-sm align-middle whitespace-nowrap no-footer"
-            theadclassName="border-y border-slate-200 dark:border-zink-500"
-            trclassName="group-[.stripe]:even:bg-slate-50 group-[.stripe]:dark:even:bg-zink-600 
-          transition-all duration-150 ease-linear group-[.hover]:hover:bg-blue-100 dark:group-[.hover]:hover:bg-zink-600 [&.selected]:bg-custom-500 dark:[&.selected]:bg-custom-500 [&.selected]:text-custom-50 dark:[&.selected]:text-custom-50"
-            thclassName={`group-[.bordered]:border group-[.bordered]:border-slate-200 group-[.bordered]:dark:border-zink-500 
-            sorting px-4 py-2.5 text-black bg-[#f9fafc] font-semibold text-left dark:text-zink-50 dark:bg-zink-600 
-            dark:group-[.bordered]:border-zink-500`}
-            tdclassName="py-2 px-4 border-b border-slate-200 group-[.bordered]:border group-[.bordered]:border-slate-200 group-[.bordered]:dark:border-zink-500"
-            PaginationClassName="flex flex-col items-center mt-5 md:flex-row px-4"
-            tbodyclassName={"px-4"}
-          />
+        {/* Table Section */}
+        <div className="relative bg-white/80 rounded-2xl border border-slate-200 shadow-sm py-3 px-2 sm:px-4 mt-3 overflow-x-auto">
+          {purchaseLoading ? (
+            <div className="flex flex-col h-105 items-center justify-center bg-white/70 backdrop-blur-sm z-50 rounded-2xl">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
+              />
+              <p className="mt-4 text-slate-600 font-medium text-sm">
+                Loading purchase orders...
+              </p>
+            </div>
+          ) : (
+            <TableContainer
+              isPagination
+              isSelect
+              isLoading={purchaseLoading}
+              isGlobalFilter
+              columns={columns || []}
+              data={purchaseOrderList || []}
+              customPageSize={10}
+              divclassName="my-2 col-span-12 overflow-x-auto lg:col-span-12"
+              tableclassName="hover group dataTable w-full text-sm align-middle whitespace-nowrap no-footer"
+              theadclassName="border-y border-slate-200 dark:border-zink-500"
+              trclassName="group-[.stripe]:even:bg-slate-50 group-[.stripe]:dark:even:bg-zink-600 transition-all duration-150 ease-linear group-[.hover]:hover:bg-blue-50"
+              thclassName="px-4 py-2.5 font-semibold text-slate-700 bg-slate-100 text-left"
+              tdclassName="py-2 px-4 border-b border-slate-200"
+              PaginationClassName="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 sm:px-4"
+              tbodyclassName="px-4"
+            />
+          )}
         </div>
       </div>
     </div>

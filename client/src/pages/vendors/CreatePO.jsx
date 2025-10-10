@@ -1024,7 +1024,7 @@ export default function PurchaseOrderForm() {
                             }}
                             suppressSuggestions={suppressSuggestions}
                             value={item.name} // only shows the name in the input
-                            className="text-sm w-[95%] truncate border-gray-300 focus:outline-none"
+                            className="text-sm w-[95%] truncate border-gray-300 focus:outline-none py-2!"
                             className2={
                               isDisabled(idx - 1) && idx > 0 && "bg-gray-100"
                             }

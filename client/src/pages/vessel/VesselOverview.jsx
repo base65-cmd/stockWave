@@ -8,6 +8,7 @@ const VesselOverview = () => {
   const { fetchVessels, vessels, dispatchLoading } = useDispatchStore();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const fetchData = async () => {
       try {
         await fetchVessels();
@@ -19,12 +20,12 @@ const VesselOverview = () => {
   }, []);
 
   const navigate = useNavigate();
-  const handleVesselClick = async (id) => {
-    navigate(`/vessel/Defender-${id}/${id}`);
+  const handleVesselClick = async (id, name) => {
+    navigate(`/vessel/${name}/${id}`);
   };
 
   return (
-    <>
+    <div className="min-h-screen">
       <PageHeader title={"Vessel Overview"} />
       {dispatchLoading ? (
         <div className="flex h-105 justify-center items-center py-10">
@@ -50,13 +51,15 @@ const VesselOverview = () => {
               <VesselCard
                 key={vessel.vessel_id}
                 vessel={vessel}
-                onClick={() => handleVesselClick(vessel.vessel_id)}
+                onClick={() =>
+                  handleVesselClick(vessel.vessel_id, vessel.vessel_name)
+                }
               />
             ))}
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

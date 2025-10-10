@@ -213,6 +213,7 @@ const SIS = () => {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const fetchData = async () => {
       setLoading(true);
       const data = await fetchAllInventory();

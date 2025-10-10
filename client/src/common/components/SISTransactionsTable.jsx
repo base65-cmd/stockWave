@@ -17,6 +17,15 @@ import {
 import { motion } from "framer-motion";
 import NavbarButton from "./NavbarButton";
 import IconButton from "./IconButton";
+import {
+  ConfigProvider,
+  DatePicker,
+  Dropdown,
+  Input,
+  Select,
+  Space,
+} from "antd";
+import dayjs from "dayjs";
 
 const TransactionsTable = ({
   limit = 10,
@@ -32,8 +41,10 @@ const TransactionsTable = ({
     fetchAllDispatchRecords,
     fetchDispatchedItemById,
     updateDispatchedItem,
+    dispatchLoading,
+    locations,
+    fetchLocations,
   } = useDispatchStore();
-  const [menuPos, setMenuPos] = useState(null); // { x, y, dispatchId } or null
   const [dispatchedItems, setDispatchedItems] = useState([]);
   const [quantity, setQuantity] = useState({});
   const [index, setIndex] = useState(null);
@@ -49,6 +60,7 @@ const TransactionsTable = ({
     const fetchData = async () => {
       try {
         const data = await fetchAllDispatchRecords();
+        await fetchLocations();
         setDispatchRecords(data);
       } catch (error) {
         console.error("Failed to fetch dispatch records:", error);
@@ -78,16 +90,6 @@ const TransactionsTable = ({
     setRowToDelete(rowIndex);
     setShowDeleteModal(true);
   };
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (!e.target.closest(".dropdown-menu")) {
-        setMenuPos(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   const handleDelete = async () => {
     // console.log("Deleting item at index:", rowToDelete);
@@ -203,35 +205,79 @@ const TransactionsTable = ({
           cell: ({ row }) => {
             const dispatchId = row.original?.dispatch_id;
 
-            const handleClick = (e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const menuWidth = 192; // ~12rem (48 Tailwind units or w-48)
-              const padding = 16;
-
-              let left = rect.right;
-              const rightEdge = left + menuWidth;
-
-              // Adjust if menu would go off screen
-              if (rightEdge > window.innerWidth - padding) {
-                left = window.innerWidth - menuWidth - padding;
-              }
-
-              setMenuPos({
-                x: left,
-                y: rect.bottom + window.scrollY,
-                dispatchId,
-              });
-
-              setIndex(row.index);
-            };
+            const items = [
+              {
+                label: (
+                  <button
+                    className="w-full flex items-center gap-2 text-left hover:text-blue-600"
+                    onClick={() => {
+                      viewOrEditDispatch(dispatchId);
+                      setViewMode(false);
+                    }}
+                  >
+                    <Pencil size={16} /> Edit Dispatch
+                  </button>
+                ),
+                key: 0,
+              },
+              {
+                label: (
+                  <button
+                    className="w-full flex items-center gap-2 text-left hover:text-gray-700"
+                    onClick={() => {
+                      setViewMode(true);
+                      viewOrEditDispatch(dispatchId);
+                    }}
+                  >
+                    <Eye size={16} /> View Dispatch
+                  </button>
+                ),
+                key: 1,
+              },
+              {
+                label: (
+                  <button
+                    className="w-full flex items-center gap-2 text-left hover:text-green-600"
+                    onClick={() => {
+                      downloadPDF(menuPos.dispatchId);
+                      setMenuPos(null);
+                    }}
+                  >
+                    <FileDown size={16} /> Download PDF
+                  </button>
+                ),
+                key: 2,
+              },
+              { type: "divider" },
+              {
+                label: (
+                  <button
+                    className="w-full flex items-center gap-2 text-left hover:text-red-600"
+                    onClick={() => {
+                      confirmDelete(menuPos.dispatchId);
+                      setMenuPos(null);
+                    }}
+                  >
+                    <Trash2 size={16} /> Delete Dispatch
+                  </button>
+                ),
+                key: 3,
+              },
+            ];
 
             return (
-              <button
-                onClick={handleClick}
-                className="p-2 rounded-full group/action hover:bg-blue-600 transition duration-300"
-              >
-                <MoreVertical className="w-5 h-5 group-hover/action:text-white text-gray-600" />
-              </button>
+              <Dropdown menu={{ items }} on trigger={["click"]}>
+                <Space>
+                  <button
+                    onClick={() => {
+                      setIndex(row.index);
+                    }}
+                    className="p-2 rounded-full group/action hover:bg-blue-600 transition duration-300"
+                  >
+                    <MoreVertical className="w-5 h-5 group-hover/action:text-white text-gray-600" />
+                  </button>
+                </Space>
+              </Dropdown>
             );
           },
         }
@@ -412,33 +458,38 @@ const TransactionsTable = ({
         }
 
         return (
-          <select
+          <Select
             defaultValue={currentLocationName}
-            className="border border-gray-300 rounded px-2 py-1 text-sm w-fit focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="px-2 py-1 text-sm w-fit focus:outline-none focus:ring-1 focus:ring-blue-500"
             disabled={viewMode}
-            onChange={(e) => {
-              const newLocationId = e.target.value;
-              row.original.location_id = newLocationId;
-              row.original.location_name =
-                e.target.options[e.target.selectedIndex].text;
+            onChange={(value, option) => {
+              const newLocationId = value;
+              const newLocationName = option?.label;
 
+              // update the row data directly (if needed)
+              row.original.location_id = newLocationId;
+              row.original.location_name = newLocationName;
+
+              // update your form state
               setFormData((prev) => {
                 const updatedDispatch = prev.dispatch.map((item) => {
                   if (item.stock_id === row.original.stock_id) {
                     return {
                       ...item,
-                      location: e.target.options[e.target.selectedIndex].text,
+                      location: newLocationName,
                     };
                   }
                   return item;
                 });
+
                 return { ...prev, dispatch: updatedDispatch };
               });
             }}
-          >
-            <option value="Port Harcourt">Port Harcourt</option>
-            <option value="Onne">Onne</option>
-          </select>
+            options={locations.map((location) => ({
+              label: location.location_name,
+              value: location.location_name,
+            }))}
+          ></Select>
         );
       },
     },
@@ -486,16 +537,17 @@ const TransactionsTable = ({
     });
   };
 
-  const viewOrEditDispatch = async () => {
-    const data = await fetchDispatchedItemById(menuPos.dispatchId);
+  const viewOrEditDispatch = async (dispatchId) => {
+    const data = await fetchDispatchedItemById(dispatchId);
     const quantityMap = {};
     data.forEach((item) => {
       quantityMap[item.stock_id] = item.quantity;
     });
 
     setDispatchedItems(data); // Store full item list
+    console.log(data);
+
     setQuantity(quantityMap);
-    setMenuPos(null);
     setFormData((prev) => ({
       ...prev,
       dispatch: data.map((item) => ({
@@ -514,7 +566,8 @@ const TransactionsTable = ({
         <div>
           <TableContainer
             isPagination={isPagination}
-            isSelect={isSelect}
+            isSelect={true}
+            isLoading={dispatchLoading}
             isGlobalFilter={isGlobal}
             columns={columns || []}
             data={dispatchRecords || []}
@@ -538,65 +591,6 @@ const TransactionsTable = ({
             onCancel={cancelDelete}
             onConfirm={handleDelete}
           />
-          {/* Context Menu for Dispatch Actions */}
-          {menuPos && (
-            <div
-              style={{
-                position: "absolute",
-                top: menuPos.y,
-                left: menuPos.x,
-                zIndex: 9999,
-              }}
-              className="bg-white shadow-xl border rounded-lg py-3 px-3 w-fit text-sm text-gray-700"
-            >
-              <ul className="flex flex-col gap-2 dropdown-menu">
-                <li>
-                  <button
-                    className="w-full flex items-center gap-2 text-left hover:text-blue-600"
-                    onClick={() => {
-                      viewOrEditDispatch();
-                      setViewMode(false);
-                    }}
-                  >
-                    <Pencil size={16} /> Edit Dispatch
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="w-full flex items-center gap-2 text-left hover:text-gray-700"
-                    onClick={() => {
-                      setViewMode(true);
-                      viewOrEditDispatch();
-                    }}
-                  >
-                    <Eye size={16} /> View Dispatch
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="w-full flex items-center gap-2 text-left hover:text-green-600"
-                    onClick={() => {
-                      downloadPDF(menuPos.dispatchId);
-                      setMenuPos(null);
-                    }}
-                  >
-                    <FileDown size={16} /> Download PDF
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="w-full flex items-center gap-2 text-left hover:text-red-600"
-                    onClick={() => {
-                      confirmDelete(menuPos.dispatchId);
-                      setMenuPos(null);
-                    }}
-                  >
-                    <Trash2 size={16} /> Delete Dispatch
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
 
           {/* Dispatched Items Modal */}
           {dispatchedItems.length > 0 && (
@@ -635,7 +629,7 @@ const TransactionsTable = ({
                   <input
                     disabled={viewMode}
                     type="text"
-                    value={`SSL/DR/${dispatchRecords[0]?.dispatch_id}`}
+                    defaultValue={`SKD/DR/${dispatchedItems[0]?.dispatch_id}`}
                     placeholder="Enter ref number"
                     className="border-0 border-b-1 border-gray-300 focus:border-blue-600 focus:outline-none text-sm px-1 py-1 transition duration-300 w-fit"
                   />
@@ -652,7 +646,7 @@ const TransactionsTable = ({
                       <label className="text-sm text-gray-600 mb-1">
                         Driver Name
                       </label>
-                      <input
+                      <Input
                         disabled={viewMode}
                         type="text"
                         className="border border-gray-300 rounded px-3 py-2 text-sm"
@@ -665,7 +659,7 @@ const TransactionsTable = ({
                       <label className="text-sm text-gray-600 mb-1">
                         Vehicle
                       </label>
-                      <input
+                      <Input
                         disabled={viewMode}
                         type="text"
                         className="border border-gray-300 rounded px-3 py-2 text-sm"
@@ -678,7 +672,7 @@ const TransactionsTable = ({
                       <label className="text-sm text-gray-600 mb-1">
                         Dispatched By
                       </label>
-                      <input
+                      <Input
                         disabled={viewMode}
                         type="text"
                         className="border border-gray-300 rounded px-3 py-2 text-sm"
@@ -695,17 +689,17 @@ const TransactionsTable = ({
                     <label className="text-sm text-gray-600 font-medium">
                       Status
                     </label>
-                    <select
-                      value={dispatchRecords[index]?.status || ""}
+                    <Select
+                      defaultValue={dispatchRecords[index]?.status || ""}
                       disabled={viewMode}
-                      onChange={(e) => {
-                        handleStatusChange(index, e.target.value);
+                      onChange={(value) => {
+                        handleStatusChange(index, value);
                         setFormData((prev) => ({
                           ...prev,
-                          dispatch_status: e.target.value,
+                          dispatch_status: value,
                         }));
                       }}
-                      className={`w-full px-3 py-2 rounded border text-sm font-medium focus:outline-none transition
+                      className={`w-full px-3 py-2 rounded text-sm font-medium focus:outline-none transition
                     ${
                       dispatchRecords[index]?.status === "dispatched"
                         ? "bg-blue-100 text-blue-700 border-blue-300"
@@ -715,11 +709,12 @@ const TransactionsTable = ({
                         ? "bg-red-100 text-red-700 border-red-300"
                         : "bg-gray-100 text-gray-700 border-gray-300"
                     }`}
-                    >
-                      <option value="dispatched">Dispatched</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                      options={[
+                        { label: "Dispatched", value: "dispatched" },
+                        { label: "Completed", value: "completed" },
+                        { label: "Cancelled", value: "cancelled" },
+                      ]}
+                    ></Select>
                   </div>
 
                   {/* Destination */}
@@ -740,18 +735,31 @@ const TransactionsTable = ({
                     <label className="text-sm text-gray-600 font-medium">
                       Dispatch Date
                     </label>
-                    <input
-                      disabled={viewMode}
-                      type="date"
-                      defaultValue={
-                        dispatchRecords[index]?.dispatch_date
-                          ? new Date(dispatchRecords[index].dispatch_date)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
+                    <ConfigProvider
+                      theme={{
+                        token: {
+                          controlOutline: "transparent", // removes glow effect
+                          controlPaddingHorizontal: 6,
+                          controlHeight: 37.33,
+                          colorBorder: "#E5E7EB",
+                          borderRadius: 6,
+                        },
+                      }}
+                    >
+                      <Space direction="vertical" className="w-full">
+                        <DatePicker
+                          disabled={viewMode}
+                          defaultValue={
+                            dispatchRecords[index]?.dispatch_date
+                              ? dayjs(dispatchRecords[index].dispatch_date)
+                              : null
+                          }
+                          className="w-full"
+                          placeholder="Select dispatch date"
+                          format="YYYY-MM-DD"
+                        />
+                      </Space>
+                    </ConfigProvider>
                   </div>
                 </div>
 

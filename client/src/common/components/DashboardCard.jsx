@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { TrendingDown, TrendingUp } from "lucide-react";
 
 const DashboardCard = ({
@@ -6,41 +7,50 @@ const DashboardCard = ({
   value,
   trendPercent,
   trendUp = true,
-  className,
-  icon_bg,
+  className = "",
+  icon_bg = "bg-blue-500",
 }) => {
   return (
-    <div
-      className={`flex flex-col w-full p-3 h-full
-        ${className}`}
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={`relative flex flex-col justify-between p-4 rounded-2xl shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-md transition-all duration-200 ${className}`}
     >
-      <div className="h-[60%]">
-        <div className="flex items-center">
-          <div className={`${icon_bg} p-3 mr-4 rounded shadow`}>
-            {Icon && <Icon className="w-5 h-5 text-white" />}
-          </div>
-          <div className="flex flex-col">
-            <h4 className="text-sm font-medium text-gray-500">{title}</h4>
-            <div className="font-bold text-gray-900">{value}</div>
-          </div>
+      {/* Top Row */}
+      <div className="flex items-center gap-3">
+        <div
+          className={`${icon_bg} flex items-center justify-center rounded-xl w-10 h-10 shadow-sm`}
+        >
+          {Icon && <Icon className="w-5 h-5 text-white" />}
+        </div>
+        <div>
+          <h4 className="text-sm font-medium text-slate-600 tracking-tight">
+            {title}
+          </h4>
+          <p className="text-2xl font-bold text-slate-900">{value}</p>
         </div>
       </div>
-      <hr className="text-gray-200 p-1" />
-      <div className="flex items-center h-[40%] justify-between text-xs text-gray-500">
-        <span className={trendUp ? "text-green-500" : "text-red-500"}>
-          {trendUp ? "▲" : "▼"} {trendPercent}% last week
-        </span>
 
-        {/* Mini visual trend */}
-        <div className="flex gap-1 h-4 ">
+      {/* Divider */}
+      <div className="h-[1px] w-full bg-slate-100 my-3" />
+
+      {/* Trend Section */}
+      <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center gap-1 text-sm font-medium ${
+            trendUp ? "text-green-600" : "text-red-600"
+          }`}
+        >
           {trendUp ? (
-            <TrendingUp className="text-green-500" strokeWidth={1} />
+            <TrendingUp className="w-4 h-4" />
           ) : (
-            <TrendingDown className="text-red-500" strokeWidth={1} />
+            <TrendingDown className="w-4 h-4" />
           )}
+          <span>{Math.abs(trendPercent)}%</span>
         </div>
+        <span className="text-xs text-slate-500 font-medium">vs last week</span>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

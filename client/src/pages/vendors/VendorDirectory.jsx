@@ -75,6 +75,7 @@ export default function VendorDirectory() {
   } = useInventoryStore();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const fetchData = async () => {
       try {
         const result = await fetchVendors();
@@ -88,7 +89,6 @@ export default function VendorDirectory() {
       }
     };
     fetchData();
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   useEffect(() => {
@@ -684,11 +684,19 @@ export default function VendorDirectory() {
                   {vendorLoading ||
                   (vendors.length === 0 &&
                     !originalVendorsRef.current.length) ? (
-                    <div className="flex justify-center items-center py-10">
-                      <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
-                      <span className="ml-2 text-sm text-gray-600">
-                        Processing...
-                      </span>
+                    <div className="bg-white/90 rounded-2xl shadow-lg p-8 flex flex-col items-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 1,
+                          ease: "linear",
+                        }}
+                        className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
+                      />
+                      <p className="mt-4 text-slate-600 font-medium text-sm">
+                        Loading vendor details...
+                      </p>
                     </div>
                   ) : vendors.length === 0 ? (
                     <span className="text-gray-500 h-[calc(100vh-280px)] flex justify-center pt-[50%] col-span-4 text-center py-4">

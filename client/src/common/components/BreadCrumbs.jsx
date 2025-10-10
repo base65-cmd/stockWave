@@ -28,10 +28,11 @@ function BreadCrumbs() {
           {pathnames.map((name, index) => {
             const isLast = index === pathnames.length - 1;
             const to = `/${pathnames.slice(0, index + 1).join("/")}`;
+            const decodedName = decodeURIComponent(name);
             const displayName =
-              name === "sis"
-                ? name.toUpperCase()
-                : name.charAt(0).toUpperCase() + name.slice(1);
+              decodedName === "sis"
+                ? decodedName.toUpperCase()
+                : decodedName.charAt(0).toUpperCase() + decodedName.slice(1);
 
             return (
               <motion.li

@@ -6,6 +6,7 @@ import { useInventoryStore } from "../../stores/useInventoryStore";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useDispatchStore } from "../../stores/useDispatchStore";
 
 function LowStock() {
   const [activeStock, setActiveStock] = useState(1);
@@ -17,11 +18,26 @@ function LowStock() {
     user_id: 3,
     min_inventory_level: "",
   });
-  const [selectedLocation, setSelectedLocation] = useState("Port Harcourt");
-  const { fetchAllInventory, updateInventoryMinimumLevel, fetchInventoryById } =
-    useInventoryStore();
+  const { fetchLocations, locations } = useDispatchStore();
+  const {
+    inv_loading,
+    fetchAllInventory,
+    updateInventoryMinimumLevel,
+    fetchInventoryById,
+  } = useInventoryStore();
+
+  const [selectedLocation, setSelectedLocation] = useState(
+    locations[0]?.location_name
+  );
   const location = useLocation();
   const outOfStock = location.pathname === "/out-of-stock";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchLocations();
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -292,8 +308,8 @@ function LowStock() {
       <div className="p-3">
         <span className="text-sm text-gray-600">Manage your low stocks</span>
 
-        <div className="flex justify-between items-center">
-          <div className="space-x-2 mt-3 border border-gray-200 bg-white rounded-lg p-1 shadow">
+        <div className="flex flex-col gap-y-3 min-[500px]:flex-row justify-between">
+          <div className="space-x-2 mt-3 border w-fit border-gray-200 bg-white rounded-lg p-1 shadow">
             <button
               onClick={() => {
                 setActiveStock(1);
@@ -332,33 +348,21 @@ function LowStock() {
             </button>
           </div>
           <div className="flex gap-2 items-center">
-            <label className="flex items-center gap-1">
-              <input
-                type="radio"
-                name="location"
-                value="Port Harcourt"
-                checked={selectedLocation === "Port Harcourt"}
-                onChange={() => {
-                  setSelectedLocation("Port Harcourt");
-                  handleLowStock();
-                }}
-              />
-              PH
-            </label>
-
-            <label className="flex items-center gap-1">
-              <input
-                type="radio"
-                name="location"
-                value="Onne"
-                checked={selectedLocation === "Onne"}
-                onChange={() => {
-                  setSelectedLocation("Onne");
-                  handleLowStock();
-                }}
-              />
-              Onne
-            </label>
+            {locations.map((location) => (
+              <label className="flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="location"
+                  value={location.location_name}
+                  checked={selectedLocation === location.location_name}
+                  onChange={() => {
+                    setSelectedLocation(location.location_name);
+                    handleLowStock();
+                  }}
+                />
+                {location.location_name}
+              </label>
+            ))}
 
             <label className="flex items-center gap-1">
               <input
@@ -384,6 +388,7 @@ function LowStock() {
           <TableContainer
             isPagination={true}
             isSelect={true}
+            isLoading={inv_loading}
             isGlobalFilter={true}
             columns={columns || []}
             data={inventory || []}
