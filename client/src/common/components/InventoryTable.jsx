@@ -8,7 +8,7 @@ import { useAuthStore } from "../../stores/useAuthStore";
 const InventoryTable = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
-
+  const { inv_loading } = useInventoryStore();
   const inventory = useInventoryStore((state) => state.inventory) || [];
   const deleteInventory = useInventoryStore((state) => state.deleteInventory);
   const fetchAllInventory = useInventoryStore(
@@ -218,6 +218,7 @@ const InventoryTable = () => {
       <div className="card">
         <div className="card-body">
           <TableContainer
+            isLoading={inv_loading}
             isPagination={true}
             isSelect={true}
             isGlobalFilter={true}

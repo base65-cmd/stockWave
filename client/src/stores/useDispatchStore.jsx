@@ -19,9 +19,10 @@ export const useDispatchStore = create((set) => ({
   },
 
   fetchVessels: async () => {
+    set({ dispatchLoading: true });
     try {
       const res = await axios.get("dispatch/dropdown/vessels");
-      set({ vessels: res.data.data });
+      set({ vessels: res.data.data, dispatchLoading: false });
       return res.data.data;
     } catch (err) {
       console.error("Failed to fetch vessels:", err);

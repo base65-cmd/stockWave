@@ -51,5 +51,4 @@ async function initializeDB() {
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   await initializeDB();
-  console.log(allowedOrigins);
 });

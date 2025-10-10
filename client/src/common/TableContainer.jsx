@@ -13,6 +13,7 @@ import {
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Input, Pagination, Select } from "antd";
+import LoadingSpinner from "./components/LoadingSpinner2";
 
 // Column Filter
 const Filter = ({ column, table }) => {
@@ -82,6 +83,8 @@ const TableContainer = ({
   SearchPlaceholder,
   highlightedId,
   context,
+  isLoading = false,
+  noDataMessage = "No data available",
 }) => {
   const [columnFilters, setColumnFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -138,6 +141,36 @@ const TableContainer = ({
     Number(customPageSize) && setPageSize(Number(customPageSize));
   }, [customPageSize, setPageSize]);
 
+  // 🧩 CONDITIONAL RENDERING SECTION
+  if (isLoading) {
+    return (
+      <div className="flex h-105 justify-center items-center py-10">
+        <div className="flex items-center justify-center space-x-2">
+          <div
+            className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
+            style={{ animationDelay: "0ms" }}
+          ></div>
+          <div
+            className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
+            style={{ animationDelay: "150ms" }}
+          ></div>
+          <div
+            className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
+            style={{ animationDelay: "300ms" }}
+          ></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoading && (!data || data.length === 0)) {
+    return (
+      <div className="flex h-105 justify-center items-center py-10 text-gray-500">
+        {noDataMessage}
+      </div>
+    );
+  }
+
   return (
     <Fragment>
       <div className="grid grid-cols-12 lg:grid-cols-12 gap-3 px-4 pb-1">
@@ -146,15 +179,16 @@ const TableContainer = ({
             <label className="flex gap-2 items-center">
               Show
               <Select
-                className=" py-2 mx-0.5 form-select border border-gray-200 rounded-lg dark:border-zink-500 ..."
+                className=""
                 onChange={(value) => setPageSize(value)}
                 defaultValue={10}
-              >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </Select>
+                options={[
+                  { value: 10, label: 10 },
+                  { value: 25, label: 25 },
+                  { value: 50, label: 50 },
+                  { value: 100, label: 100 },
+                ]}
+              ></Select>
               entries
             </label>
           </div>
@@ -261,69 +295,7 @@ const TableContainer = ({
               Showing <b>{pageEnd}</b> of <b>{data.length}</b> Results
             </div>
           </div>
-          {/* <ul className="flex flex-wrap items-center gap-2 shrink-0">
-            <li>
-              <Link
-                to="#!"
-                className={`inline-flex items-center ... ${
-                  !getCanPreviousPage() && "disabled"
-                }`}
-                onClick={previousPage}
-              >
-                <ChevronLeft className="size-4 mr-1 rtl:rotate-180" /> Prev
-              </Link>
-            </li>
-            {getPageOptions().map((item, key) => {
-              const currentPage = getState().pagination.pageIndex;
-              const isVisible =
-                item === 0 ||
-                item === getPageOptions().length - 1 ||
-                Math.abs(item - currentPage) <= 1;
 
-              if (!isVisible) {
-                if (
-                  (item === currentPage - 2 && item !== 1) ||
-                  (item === currentPage + 2 &&
-                    item !== getPageOptions().length - 2)
-                ) {
-                  return (
-                    <li key={key}>
-                      <span className="inline-flex items-center px-3 py-1 text-[10px] text-gray-500">
-                        …
-                      </span>
-                    </li>
-                  );
-                }
-                return null;
-              }
-
-              return (
-                <li key={key}>
-                  <Link
-                    to="#"
-                    className={`inline-flex items-center justify-center h-6 w-6 text-sm rounded-full ${
-                      currentPage === item
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 bg-gray-200"
-                    }`}
-                    onClick={() => setPageIndex(item)}
-                  >
-                    {item + 1}
-                  </Link>
-                </li>
-              );
-            })}
-
-            <li>
-              <Link
-                to="#!"
-                className={`inline-flex items-center ...`}
-                onClick={() => getCanNextPage() && nextPage()}
-              >
-                Next <ChevronRight className="size-4 ml-1 rtl:rotate-180" />
-              </Link>
-            </li>
-          </ul> */}
           <Pagination
             showQuickJumper
             defaultCurrent={1}

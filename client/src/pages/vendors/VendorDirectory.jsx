@@ -64,7 +64,6 @@ export default function VendorDirectory() {
   } = useVendorStore();
   const { isOpen } = useSidebarStore();
   const { fetchPurchaseRecordByVendor } = usePurchaseStore();
-  // const vendorLoading = false; //TODO Update this to use the vendorLoading state from the store
   const originalVendorsRef = useRef([]);
   const allInventory = useRef([]);
   const categoryScrollRef = useRef(null);
@@ -524,7 +523,7 @@ export default function VendorDirectory() {
     );
   };
   return (
-    <div className="w-full relative">
+    <div className="w-full relative min-h-[calc(100vh-80px)]">
       <PageHeader
         title={"Vendor Directory"}
         button={[
@@ -682,13 +681,19 @@ export default function VendorDirectory() {
               {/* Vendor Cards */}
               {tab !== "By Item" ? (
                 <>
-                  {vendorLoading ? (
+                  {vendorLoading ||
+                  (vendors.length === 0 &&
+                    !originalVendorsRef.current.length) ? (
                     <div className="flex justify-center items-center py-10">
                       <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
                       <span className="ml-2 text-sm text-gray-600">
                         Processing...
                       </span>
                     </div>
+                  ) : vendors.length === 0 ? (
+                    <span className="text-gray-500 h-[calc(100vh-280px)] flex justify-center pt-[50%] col-span-4 text-center py-4">
+                      No items found in this category
+                    </span>
                   ) : (
                     <div
                       className={clsx(
@@ -703,43 +708,37 @@ export default function VendorDirectory() {
                           : "flex flex-col gap-4"
                       )}
                     >
-                      {paginatedVendors.length === 0 ? (
-                        <span className="text-gray-500 h-[calc(100vh-280px)] flex justify-center pt-[50%] col-span-4 text-center py-4">
-                          No items found in this category
-                        </span>
-                      ) : (
-                        paginatedVendors.map((vendor, index) => (
-                          <motion.div
+                      {paginatedVendors.map((vendor, index) => (
+                        <motion.div
+                          key={vendor.vendor_id}
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                        >
+                          <VendorCard
                             key={vendor.vendor_id}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                          >
-                            <VendorCard
-                              key={vendor.vendor_id}
-                              vendor={vendor}
-                              view={view}
-                              displayVendorDetails={async () => {
-                                const data = await fetchVendorById(
+                            vendor={vendor}
+                            view={view}
+                            displayVendorDetails={async () => {
+                              const data = await fetchVendorById(
+                                vendor.vendor_id
+                              );
+                              const purchaseData =
+                                await fetchPurchaseRecordByVendor(
                                   vendor.vendor_id
                                 );
-                                const purchaseData =
-                                  await fetchPurchaseRecordByVendor(
-                                    vendor.vendor_id
-                                  );
-                                setSelectedVendor(data);
-                                setTransactions(purchaseData);
-                                setVendorDetails(true);
-                              }}
-                            />
-                          </motion.div>
-                        ))
-                      )}
+                              setSelectedVendor(data);
+                              setTransactions(purchaseData);
+                              setVendorDetails(true);
+                            }}
+                          />
+                        </motion.div>
+                      ))}
                     </div>
                   )}
 
-                  {paginatedVendors.length > 0 && (
+                  {!vendorLoading && paginatedVendors.length > 0 && (
                     <div className="flex justify-between items-center mt-4">
                       <button
                         className="px-2 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"

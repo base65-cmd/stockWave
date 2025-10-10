@@ -20,7 +20,7 @@ html::-webkit-scrollbar {
 }
 
 html {
-  font-size: clamp(14.5px, 1vw + 0.5rem, 16px);
+  font-size: clamp(15px, 1vw + 0.5rem, 16px);
 }
 
 /* styles.css or global CSS */

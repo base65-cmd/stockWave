@@ -59,6 +59,21 @@ const TransactionsTable = ({
 
   useEffect(() => {}, [dispatchRecords]);
 
+  useEffect(() => {
+    if (dispatchedItems.length > 0) {
+      // Disable background scroll
+      document.body.style.overflow = "hidden";
+    } else {
+      // Re-enable background scroll
+      document.body.style.overflow = "auto";
+    }
+
+    // Cleanup when the component unmounts
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [dispatchedItems]);
+
   const confirmDelete = (rowIndex) => {
     setRowToDelete(rowIndex);
     setShowDeleteModal(true);
@@ -495,8 +510,8 @@ const TransactionsTable = ({
 
   return (
     <React.Fragment>
-      <div className="card">
-        <div className="card-body">
+      <div>
+        <div>
           <TableContainer
             isPagination={isPagination}
             isSelect={isSelect}
@@ -591,7 +606,7 @@ const TransactionsTable = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.5 }}
-                className="bg-white rounded-lg h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-30%)] my-8 animate-slide-up relative"
+                className="bg-white rounded-lg h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-8%)] md:w-[calc(100vw-15%)] lg:w-[calc(100vw-30%)] my-8 animate-slide-up relative"
               >
                 {/* Header */}
                 <header className="flex items-center justify-between border-b border-gray-200 p-5">

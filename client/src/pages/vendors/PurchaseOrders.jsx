@@ -49,7 +49,8 @@ const PurchaseOrders = () => {
   ];
   const originalPORef = useRef([]);
   const navigate = useNavigate();
-  const { getAllPurchaseRecord, fetchPurchaseOrderItems } = usePurchaseStore();
+  const { getAllPurchaseRecord, fetchPurchaseOrderItems, purchaseLoading } =
+    usePurchaseStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -280,7 +281,7 @@ const PurchaseOrders = () => {
   );
 
   return (
-    <div>
+    <div className="flex flex-col min-h-[calc(100vh-80px)]">
       <PageHeader
         title={"Purchase Orders"}
         button={[
@@ -303,7 +304,7 @@ const PurchaseOrders = () => {
             }}
           />
         )}
-        <div className="grid grid-cols-5 gap-3 h-35">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 h-35">
           <div className="rounded-lg shadow w-full bg-white">
             <DashboardCard
               title={"Total Orders"}
@@ -412,6 +413,7 @@ const PurchaseOrders = () => {
           <TableContainer
             isPagination={true}
             isSelect={true}
+            isLoading={purchaseLoading}
             isGlobalFilter={true}
             columns={columns || []}
             data={purchaseOrderList || []}
@@ -429,65 +431,6 @@ const PurchaseOrders = () => {
             tbodyclassName={"px-4"}
           />
         </div>
-
-        {/* {menuPos && (
-          <div
-            style={{
-              position: "absolute",
-              top: menuPos.y,
-              left: menuPos.x,
-              zIndex: 9999,
-            }}
-            className="bg-white shadow-xl border rounded-lg py-3 px-3 w-fit text-sm text-gray-700"
-          >
-            <ul className="flex flex-col gap-2 dropdown-menu">
-              <li>
-                <button
-                  className="w-full flex items-center gap-2 text-left hover:text-blue-600"
-                  onClick={() => {
-                    // viewOrEditDispatch();
-                    // setViewMode(false);
-                  }}
-                >
-                  <Pencil size={16} /> Edit PO
-                </button>
-              </li>
-              <li>
-                <button
-                  className="w-full flex items-center gap-2 text-left hover:text-gray-700"
-                  onClick={() => {
-                    // setViewMode(true);
-                    // viewOrEditDispatch();
-                  }}
-                >
-                  <Eye size={16} /> View PO
-                </button>
-              </li>
-              <li>
-                <button
-                  className="w-full flex items-center gap-2 text-left hover:text-green-600"
-                  onClick={() => {
-                    // downloadPDF(menuPos.dispatchId);
-                    setMenuPos(null);
-                  }}
-                >
-                  <FileDown size={16} /> Download PDF
-                </button>
-              </li>
-              <li>
-                <button
-                  className="w-full flex items-center gap-2 text-left hover:text-red-600"
-                  onClick={() => {
-                    confirmDelete(menuPos.dispatchId);
-                    setMenuPos(null);
-                  }}
-                >
-                  <Trash2 size={16} /> Delete PO
-                </button>
-              </li>
-            </ul>
-          </div>
-        )} */}
       </div>
     </div>
   );
