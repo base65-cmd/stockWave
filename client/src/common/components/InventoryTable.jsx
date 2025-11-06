@@ -50,15 +50,15 @@ const InventoryTable = () => {
 
   const columns = React.useMemo(
     () => [
-      {
-        header: <input type="checkbox" />,
-        accessorKey: "select",
-        enableSorting: false,
-        enableColumnFilter: false,
-        cell: ({ row }) => {
-          return <input type="checkbox" className="" />;
-        },
-      },
+      // {
+      //   header: <input type="checkbox" />,
+      //   accessorKey: "select",
+      //   enableSorting: false,
+      //   enableColumnFilter: false,
+      //   cell: ({ row }) => {
+      //     return <input type="checkbox" className="" />;
+      //   },
+      // },
       {
         header: "Name",
         accessorKey: "name",

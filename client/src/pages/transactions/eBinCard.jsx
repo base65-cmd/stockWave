@@ -7,7 +7,7 @@ import { useInventoryStore } from "../../stores/useInventoryStore";
 import AutocompleteInput from "../../common/components/AutoCompleteInput";
 import { motion } from "framer-motion";
 import DispatchedItemsModal from "../../common/components/DispatchedItems";
-import { DatePicker, Input, Select } from "antd";
+import { DatePicker, Input, Select, Spin } from "antd";
 import dayjs from "dayjs";
 
 const EBincard = () => {
@@ -408,6 +408,7 @@ const EBincard = () => {
   return (
     <>
       <PageHeader title={"e-BinCard"} />
+      <Spin spinning={dispatchLoading} size="large" fullscreen={true}></Spin>
       <div className="m-3 space-y-6 min-h-[calc(100vh-170px)]">
         {/* Filters */}
         <div className="bg-white p-5 rounded-lg shadow space-x-6 space-y-4 md:space-y-0 md:flex md:items-end md:justify-between">
@@ -667,33 +668,19 @@ const EBincard = () => {
         )}
 
         {/* Show Dispatch Model */}
-        {dispatchLoading ? (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white/90 rounded-2xl shadow-lg p-8 flex flex-col items-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
-              />
-              <p className="mt-4 text-slate-600 font-medium text-sm">
-                Loading dispatch details...
-              </p>
-            </div>
-          </div>
-        ) : (
-          dispatchedItems.length > 0 && (
-            <DispatchedItemsModal
-              stock_id={selectedItemId}
-              tableContext="dispatch-modal"
-              dispatchedItems={dispatchedItems}
-              dispatchRecords={dispatchRecord}
-              index={0}
-              viewMode={viewMode}
-              dispatchedItemsColumns={dispatchedItemsColumns}
-              setDispatchedItems={setDispatchedItems}
-              setSelectedItemId={setSelectedItemId}
-            />
-          )
+
+        {dispatchedItems.length > 0 && (
+          <DispatchedItemsModal
+            stock_id={selectedItemId}
+            tableContext="dispatch-modal"
+            dispatchedItems={dispatchedItems}
+            dispatchRecords={dispatchRecord}
+            index={0}
+            viewMode={viewMode}
+            dispatchedItemsColumns={dispatchedItemsColumns}
+            setDispatchedItems={setDispatchedItems}
+            setSelectedItemId={setSelectedItemId}
+          />
         )}
       </div>
     </>

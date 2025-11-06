@@ -144,9 +144,9 @@ const TableContainer = ({
   // 🧩 CONDITIONAL RENDERING SECTION
   if (isLoading) {
     return (
-      <div className="flex h-105 justify-center items-center py-10">
+      <div className="flex flex-1 h-[calc(100vh-164px)] justify-center items-center py-10">
         <div className="flex items-center justify-center space-x-2">
-          <div
+          {/* <div
             className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
             style={{ animationDelay: "0ms" }}
           ></div>
@@ -157,7 +157,7 @@ const TableContainer = ({
           <div
             className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
             style={{ animationDelay: "300ms" }}
-          ></div>
+          ></div> */}
         </div>
       </div>
     );

@@ -19,7 +19,7 @@ export const useDispatchStore = create((set) => ({
   },
 
   fetchVessels: async () => {
-    set({ dispatchLoading: true });
+    // set({ dispatchLoading: true });
     try {
       const res = await axios.get("dispatch/dropdown/vessels");
       set({ vessels: res.data.data, dispatchLoading: false });
@@ -86,7 +86,7 @@ export const useDispatchStore = create((set) => ({
     }
   },
   fetchDispatchRecordById: async (dispatchId) => {
-    set({ dispatchLoading: true });
+    // set({ dispatchLoading: true });
     try {
       const res = await axios.get(`/dispatch/${dispatchId}`);
       set({ dispatchLoading: false, dispatchData: res.data.data });

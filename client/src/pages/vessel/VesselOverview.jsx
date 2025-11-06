@@ -3,6 +3,7 @@ import PageHeader from "../../common/components/PageHeader";
 import { useDispatchStore } from "../../stores/useDispatchStore";
 import VesselCard from "../../common/components/VesselCard";
 import { useNavigate } from "react-router-dom";
+import { Spin } from "antd";
 
 const VesselOverview = () => {
   const { fetchVessels, vessels, dispatchLoading } = useDispatchStore();
@@ -27,38 +28,20 @@ const VesselOverview = () => {
   return (
     <div className="min-h-screen">
       <PageHeader title={"Vessel Overview"} />
-      {dispatchLoading ? (
-        <div className="flex h-105 justify-center items-center py-10">
-          <div className="flex items-center justify-center space-x-2">
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "0ms" }}
-            ></div>
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            ></div>
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            ></div>
-          </div>
+      <Spin spinning={dispatchLoading} size="large" fullscreen={true}></Spin>
+      <div className="min-h-screen m-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {vessels.map((vessel) => (
+            <VesselCard
+              key={vessel.vessel_id}
+              vessel={vessel}
+              onClick={() =>
+                handleVesselClick(vessel.vessel_id, vessel.vessel_name)
+              }
+            />
+          ))}
         </div>
-      ) : (
-        <div className="min-h-screen m-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {vessels.map((vessel) => (
-              <VesselCard
-                key={vessel.vessel_id}
-                vessel={vessel}
-                onClick={() =>
-                  handleVesselClick(vessel.vessel_id, vessel.vessel_name)
-                }
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

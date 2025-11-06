@@ -20,6 +20,7 @@ import useWindowWidth from "./common/components/useWindowWidth";
 import useSidebarStore from "./stores/useSidebarStore";
 import DevPage from "./pages/DevPage";
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 function App() {
   const location = useLocation();
@@ -33,6 +34,7 @@ function App() {
     <div className="flex w-full">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route
           path="*"

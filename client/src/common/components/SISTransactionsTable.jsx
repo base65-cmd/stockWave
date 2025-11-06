@@ -29,7 +29,7 @@ import dayjs from "dayjs";
 
 const TransactionsTable = ({
   limit = 10,
-  isSelect,
+  isSelect = true,
   isGlobal,
   actionButton = true,
   isPagination = true,
@@ -545,7 +545,6 @@ const TransactionsTable = ({
     });
 
     setDispatchedItems(data); // Store full item list
-    console.log(data);
 
     setQuantity(quantityMap);
     setFormData((prev) => ({
@@ -566,7 +565,7 @@ const TransactionsTable = ({
         <div>
           <TableContainer
             isPagination={isPagination}
-            isSelect={true}
+            isSelect={isSelect}
             isLoading={dispatchLoading}
             isGlobalFilter={isGlobal}
             columns={columns || []}
@@ -766,6 +765,7 @@ const TransactionsTable = ({
                 {/* Table Section */}
                 <div className="px-5 pb-5 mb-13">
                   <TableContainer
+                    isLoading={dispatchLoading}
                     isPagination={false}
                     isSelect={isSelect}
                     isGlobalFilter={isGlobal}

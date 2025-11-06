@@ -14,21 +14,25 @@ import {
   DollarSign,
   Truck,
   Ship,
-  TrendingUp,
-  TrendingDown,
   ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
   Zap,
   ArrowUpCircle,
+  Store,
 } from "lucide-react";
 import BarChartCard from "../common/components/Charts/BarChartCard";
 import { useDispatchStore } from "../stores/useDispatchStore";
 import AutocompleteInput from "../common/components/AutoCompleteInput";
 import { useInventoryStore } from "../stores/useInventoryStore";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import TransactionsTable from "../common/components/SISTransactionsTable";
 import { useAuthStore } from "../stores/useAuthStore";
+import { motion } from "framer-motion";
+import useWindowWidth from "../common/components/useWindowWidth";
+import clsx from "clsx";
+import useSidebarStore from "../stores/useSidebarStore";
+import { Spin, Tooltip } from "antd";
 
 const HomePage = () => {
   const [dispatchedData, setDispatchedData] = useState([]);
@@ -37,14 +41,20 @@ const HomePage = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [inputValue, setInputValue] = useState("Product_230 PN-00230");
-  const { fetchAllDispatchedItems, fetchVessels, vessels } = useDispatchStore();
-  const { fetchAllInventory, getLowInventory, getOutOfStock } =
-    useInventoryStore();
+  const { fetchAllDispatchedItems, dispatchLoading } = useDispatchStore();
+  const {
+    fetchAllInventory,
+    getLowInventory,
+    getOutOfStock,
+    loading,
+    inv_loading,
+  } = useInventoryStore();
   const [lowStock, setLowStock] = useState([]);
   const [outOfStock, setOutOfStock] = useState([]);
   const { username } = useAuthStore();
+  const windowWidth = useWindowWidth();
+  const { isOpen } = useSidebarStore();
 
-  // Start of
   const vesselMap = {
     "Sea Wanderer": "Sea Wan",
     "Aurora’s Wake": "Aurora",
@@ -94,7 +104,6 @@ const HomePage = () => {
           (item, index, self) =>
             index === self.findIndex((t) => t.item_id === item.item_id)
         );
-        console.log({ inventory, uniqueInventory });
 
         setAllInventory(uniqueInventory);
       } catch (error) {}
@@ -150,7 +159,6 @@ const HomePage = () => {
     setDispatchedData(resultArray);
     setInputValue(label);
   };
-  // End of
 
   //Start of low stock
   useEffect(() => {
@@ -266,93 +274,134 @@ const HomePage = () => {
     progress,
     sparkline,
     link,
-    ratio, // new prop: string like "1/3"
+    ratio,
+    children,
   }) {
     const positive = typeof delta === "number" ? delta >= 0 : null;
 
     return (
-      <div className="rounded-lg shadow bg-white h-44 p-4 flex flex-col justify-between">
-        {/* Top: Title + Value + Icon + Delta */}
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-gray-500 text-sm">{title}</p>
-            <h3 className="text-2xl font-semibold mt-1">{value}</h3>
-          </div>
-          <div className="flex flex-col items-end space-y-1">
-            {Icon && (
-              <div className="p-2 rounded-md bg-gray-100">
-                <Icon className="h-6 w-6 text-gray-700" />
-              </div>
+      <motion.div
+        whileHover={{ y: -2 }}
+        className="group relative rounded-2xl bg-white shadow-sm border border-gray-100 
+                 transition-all duration-300 hover:shadow-md overflow-hidden 
+                 grid grid-rows-[auto,1fr,auto] h-50 sm:h-56"
+      >
+        {/* --- HEADER --- */}
+        <div className="p-2 sm:p-3 flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <p className="text-gray-500 text-xs sm:text-sm font-medium truncate">
+              {title || <span className="invisible">placeholder</span>}
+            </p>
+            {value ? (
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mt-1 truncate">
+                {value}
+              </h3>
+            ) : (
+              // Maintain space even if missing
+              <div className="" />
             )}
-            {typeof delta === "number" && (
-              <div
-                className={`text-xs inline-flex items-center px-2 py-0.5 rounded-full font-medium ${
+          </div>
+
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            {Icon ? (
+              <div className="p-1.5 sm:p-2 rounded-lg bg-gradient-to-tr from-indigo-50 to-blue-50 shadow-sm">
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
+              </div>
+            ) : (
+              <div className="h-8 w-8" /> // keeps spacing uniform
+            )}
+
+            {typeof delta === "number" ? (
+              <span
+                className={`inline-flex items-center text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full ${
                   positive
-                    ? "bg-green-50 text-green-700"
-                    : "bg-red-50 text-red-700"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-rose-50 text-rose-700"
                 }`}
-                aria-hidden
               >
                 {positive ? (
                   <ArrowUpRight className="h-3 w-3 mr-1" />
                 ) : (
                   <ArrowDownRight className="h-3 w-3 mr-1" />
                 )}
-                <span>
-                  {deltaPrefix}
-                  {Math.abs(Number(delta).toFixed(deltaIsPercent ? 1 : 0))}
-                  {deltaIsPercent ? deltaSuffix : ""}
-                </span>
-              </div>
+                {deltaPrefix}
+                {Math.abs(Number(delta).toFixed(deltaIsPercent ? 1 : 0))}
+                {deltaIsPercent ? deltaSuffix : ""}
+              </span>
+            ) : (
+              <div className="h-4" /> // keeps spacing when no delta
             )}
           </div>
         </div>
 
-        {/* Middle: Sparkline / Subtitle */}
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex-1">
-            {subtitle && <p className="text-xs text-gray-400">{subtitle}</p>}
-          </div>
-          <div className="ml-3">
-            {sparkline && (
-              <Sparkline data={sparkline} width={110} height={36} />
-            )}
-          </div>
-        </div>
+        {/* --- BODY --- */}
+        <div
+          className={clsx(
+            "px-4 sm:px-5 pb-2 sm:pb-3 w-full gap-3 overflow-hidden",
+            { "grid grid-rows-3": !children }
+          )}
+        >
+          {children ? (
+            <div className="flex-1 overflow-hidden">{children}</div>
+          ) : (
+            <>
+              {subtitle ? (
+                <p className="text-xs sm:text-sm text-gray-400 truncate">
+                  {subtitle}
+                </p>
+              ) : (
+                <div className="" /> // reserve space
+              )}
 
-        {/* Bottom: Progress + Ratio + Link */}
-        <div className="flex items-center justify-between mt-3 space-x-2">
-          {/* Progress + Ratio aligned left */}
-          <div className="flex flex-col flex-1">
-            {typeof progress === "number" && (
-              <>
-                <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                  <div
-                    style={{
-                      width: `${Math.max(0, Math.min(100, progress))}%`,
-                    }}
-                    className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
-                  />
+              {sparkline && (
+                <div className="flex justify-end w-full opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                  <Sparkline data={sparkline} width={200} height={40} />
                 </div>
-                <div className="flex justify-between items-center mt-1 text-xs text-gray-400">
-                  <span>{Math.round(progress)}% capacity</span>
-                  {ratio && <span>{ratio}</span>}
-                </div>
-              </>
-            )}
-          </div>
+              )}
 
-          {/* Link aligned right */}
-          {link && (
-            <Link
-              to={link.to}
-              className="inline-flex items-center text-blue-600 text-sm hover:underline whitespace-nowrap"
-            >
-              {link.label} <ChevronRight className="h-4 w-4 ml-1" />
-            </Link>
+              {typeof progress === "number" && (
+                <div className="mt-1">
+                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      style={{
+                        width: `${Math.max(0, Math.min(100, progress))}%`,
+                      }}
+                      className="h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-1 text-[10px] sm:text-xs text-gray-400">
+                    <span>{Math.round(progress)}% complete</span>
+                    {ratio && <span>{ratio}</span>}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
-      </div>
+
+        {/* --- FOOTER --- */}
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 flex justify-end items-center">
+          {link ? (
+            <Link
+              to={link.to}
+              className="flex items-center text-[11px] sm:text-sm text-indigo-600 hover:text-indigo-800 
+                       transition-colors whitespace-nowrap font-medium"
+            >
+              {link.label}
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 ml-1" />
+            </Link>
+          ) : (
+            <div className="h-4" /> // keeps uniform height when no link
+          )}
+        </div>
+
+        {/* Decorative Hover Glow */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 
+                      transition duration-300 bg-gradient-to-br 
+                      from-indigo-100/30 via-transparent to-transparent"
+        />
+      </motion.div>
     );
   }
 
@@ -392,8 +441,8 @@ const HomePage = () => {
     dispatchesThisMonth: 95,
     vesselsActive: { active: 7, total: 10 },
     topVendors: [
-      { name: "Aqua Supplies", orders: 15 },
-      { name: "Oceanic Parts", orders: 12 },
+      { name: "Sea Wanderer", orders: 15 },
+      { name: "Aurora’s Wake", orders: 12 },
     ],
     sparklines: {
       inventory: [100, 110, 120, 130, 125, 140, 150],
@@ -405,8 +454,7 @@ const HomePage = () => {
       {
         time: "2h ago",
         title: "PO #2245 created",
-        description:
-          "PO for 120 units of Diesel Filter (Vendor: Aqua Supplies)",
+        description: "PO for 120 units of Diesel Filter (Vendor: Sea Wanderer)",
         type: "info",
       },
       {
@@ -419,6 +467,20 @@ const HomePage = () => {
         time: "1 day",
         title: "Inventory adjustment",
         description: "Adjusted 5 units for Item #4523 (damage)",
+        type: "error",
+      },
+      {
+        time: "3 days ago",
+        title: "New vendor onboarded",
+        description:
+          "Vendor 'Maritime Supplies Co.' added to the vendor directory.",
+        type: "info",
+      },
+      {
+        time: "5 days ago",
+        title: "Low stock alert",
+        description:
+          "Item #7842 (Engine Oil Drum) dropped below minimum stock threshold.",
         type: "error",
       },
     ],
@@ -453,10 +515,20 @@ const HomePage = () => {
   return (
     <div className="">
       <PageHeader title="Dashboard" />
-
+      <Spin
+        spinning={inv_loading || loading || dispatchLoading}
+        size="large"
+        fullscreen={true}
+      ></Spin>
       <div className="p-6 space-y-6 max-[450px]:space-y-3 max-[450px]:p-3">
         <WelcomeBanner username={username} />
-        <div className="grid grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-4 gap-6 max-[450px]:gap-3">
+        <div
+          className={clsx("grid  gap-6 max-[450px]:gap-3", [
+            isOpen && windowWidth > 1024
+              ? "lg:grid-cols-2 xl:grid-cols-3"
+              : "grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4",
+          ])}
+        >
           <StatCard
             icon={Box}
             title="Total Inventory Items"
@@ -499,10 +571,7 @@ const HomePage = () => {
             sparkline={[5, 6, 7, 7, 8, 9, 12]}
             link={{ to: "/vendor", label: "View Vendors" }}
           />
-        </div>
-
-        {/* ROW 2: Operational Insights (4 cards) */}
-        <div className="grid grid-cols-1 min-[500px]:grid-cols-2 lg:grid-cols-4 gap-6 max-[450px]:gap-3">
+          {/* ROW 2: Operational Insights (4 cards) */}
           <StatCard
             icon={RefreshCw}
             title="Recent Transactions"
@@ -523,83 +592,65 @@ const HomePage = () => {
             link={{ to: "/dispatch-records", label: "View Records" }}
           />
 
-          <div className="rounded-lg shadow bg-white h-44 p-4 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm">Vessel Utilization</p>
-                <h3 className="text-2xl font-semibold mt-1">
-                  {mock.vesselsActive.active} / {mock.vesselsActive.total}{" "}
-                  Active
-                </h3>
-              </div>
-              <div className="p-2 rounded-md bg-gray-100">
-                <Ship className="h-6 w-6 text-gray-700" />
-              </div>
-            </div>
+          <StatCard
+            icon={Ship}
+            title="Vessel Utilization"
+            value={`${mock.vesselsActive.active} / ${mock.vesselsActive.total} Active`}
+            subtitle="Top Vessel: Aurora"
+            progress={
+              (mock.vesselsActive.active / mock.vesselsActive.total) * 100
+            }
+            link={{ to: "/vessel", label: "View Vessels" }}
+          />
 
-            <div className="mt-2 flex-1">
-              <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+          <StatCard
+            icon={Store}
+            title="Top Vendors by Orders"
+            value={`Total: ${mock.topVendors.length}`}
+            link={{ to: "/vendor-report", label: "View Report" }}
+          >
+            <div className="mt-2 space-y-2">
+              {mock.topVendors.map((v) => (
                 <div
-                  style={{
-                    width: `${
-                      (mock.vesselsActive.active / mock.vesselsActive.total) *
-                      100
-                    }%`,
-                  }}
-                  className="h-2 rounded-full bg-gradient-to-r from-teal-400 to-teal-600"
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-2">Top Vessel: Aurora</p>
-            </div>
-
-            <Link
-              to="/vessel"
-              className="text-blue-600 text-sm hover:underline self-end mt-3 inline-flex items-center"
-            >
-              View Vessels <ChevronRight className="h-4 w-4 ml-1" />
-            </Link>
-          </div>
-
-          <div className="rounded-lg shadow bg-white h-44 p-4 flex flex-col justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">Top Vendors by Orders</p>
-              <div className="mt-2 space-y-2">
-                {mock.topVendors.map((v) => (
-                  <div
-                    key={v.name}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-700">
-                        {v.name.split(" ").slice(0, 1)[0]}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">
-                          {v.name}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Orders: {v.orders}
-                        </p>
-                      </div>
+                  key={v.name}
+                  className="flex items-center justify-between border-b last:border-0 pb-1.5"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-700">
+                      {v.name.charAt(0)}
                     </div>
-                    <div className="text-sm font-semibold">{v.orders}</div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {v.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Orders: {v.orders}
+                      </p>
+                    </div>
                   </div>
-                ))}
-              </div>
+                  <span className="text-sm font-semibold text-gray-700">
+                    {v.orders}
+                  </span>
+                </div>
+              ))}
             </div>
-
-            <Link
-              to="/vendor-report"
-              className="text-blue-600 text-sm hover:underline self-end mt-3 inline-flex items-center"
-            >
-              View Report <ChevronRight className="h-4 w-4 ml-1" />
-            </Link>
-          </div>
+          </StatCard>
         </div>
 
         <div className="flex flex-col min-[850px]:flex-row gap-6 max-[450px]:gap-3">
-          <div className="rounded-lg shadow w-full min-[850px]:w-[55%] h-fit min-[850px]:h-[413.33px] bg-white">
-            <header className="border-b relative border-gray-200 py-3 pl-3 pr-8 mb-3 grid grid-cols-1 min-[575px]:grid-cols-2 min-[700px]:grid-cols-3 min-[850px]:grid-cols-2 xl:grid-cols-3 gap-2 items-center justify-between">
+          {/* Dispatched Items */}
+          <motion.div
+            whileHover={{ y: -2 }}
+            className={clsx(
+              "rounded-2xl shadow-sm  border border-gray-100 hover:shadow-md bg-white",
+              [
+                isOpen && windowWidth > 1024
+                  ? "lg:w-[60%]"
+                  : "w-full min-[850px]:w-[55%] lg:w-full h-fit min-[850px]:h-[450px]",
+              ]
+            )}
+          >
+            <header className="border-b relative border-gray-100 py-3 pl-3 pr-8 mb-3 grid grid-cols-1 min-[575px]:grid-cols-2 min-[700px]:grid-cols-3 min-[850px]:grid-cols-2 xl:grid-cols-3 gap-2 items-center justify-between">
               <div className="flex items-center">
                 <div className="bg-blue-100 rounded-lg p-1">
                   <Repeat
@@ -688,9 +739,13 @@ const HomePage = () => {
                 rounded={true}
               />
             </div>
-          </div>
+          </motion.div>
+
           {/* Quick Actions */}
-          <div className="p-3 rounded-lg shadow w-full min-[850px]:w-[45%] h-[413.33px] bg-white">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="p-3 rounded-2xl shadow-sm  border border-gray-100 hover:shadow-md w-full min-[850px]:w-[45%] h-[450px] bg-white"
+          >
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-lg font-semibold">Quick Actions</h4>
               <p className="text-xs text-gray-400">Shortcuts</p>
@@ -761,12 +816,16 @@ const HomePage = () => {
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
 
+        {/* Recent Transactions */}
         <div className="flex flex-col min-[850px]:flex-row gap-6 max-[450px]:gap-3">
-          <div className="rounded-lg w-full min-[850px]:w-[60%] shadow bg-white h-[420px]">
-            <div className="flex justify-between items-center border-b border-gray-200 p-4">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="rounded-2xl transition-all duration-300 hover:shadow-md shadow-sm border border-gray-100 w-full min-[850px]:w-[60%] bg-white h-[432px]"
+          >
+            <div className="flex justify-between items-center border-b border-gray-200 p-4 h-[62px]">
               <span className="font-semibold">Recent transactions</span>
               <Link
                 to="/sis-transactions"
@@ -775,19 +834,23 @@ const HomePage = () => {
                 View All
               </Link>
             </div>
-            <div className="p-4">
-              <div className="rounded border border-gray-200">
+            <div className="p-4 h-[358px] menu">
+              <div className="rounded border pt-3 border-gray-200">
                 <TransactionsTable
                   actionButton={false}
                   limit={5}
+                  isSelect={false}
                   isPagination={false}
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Recent Activity (spans 2 columns on lg) */}
-          <div className="rounded-lg shadow w-full min-[850px]:w-[40%] h-[420px] bg-white p-4">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="rounded-2xl transition-all duration-300 hover:shadow-md shadow-sm border border-gray-100 w-full min-[850px]:w-[40%] h-[432px] bg-white p-4"
+          >
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-lg font-semibold">Recent Activity</h4>
               <Link
@@ -809,19 +872,30 @@ const HomePage = () => {
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-[450px]:gap-3 ">
           {/* LowStock */}
-          <div className="rounded-lg shadow w-full bg-white h-fit sm:h-[470px]">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="rounded-2xl transition-all duration-300 hover:shadow-md shadow-sm border border-gray-100 w-full bg-white h-fit sm:h-[475px]"
+          >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <div className="flex items-center gap-2 font-semibold text-lg">
                 <div className="bg-red-100 p-2.5 text-red-600 rounded-lg">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
-                <span>Low Stock</span>
+                <Tooltip title={"Low Stock"}>
+                  <span
+                    className={clsx("truncate ", [
+                      isOpen && windowWidth > 1024 && "max-w-[102px]",
+                    ])}
+                  >
+                    Low Stock
+                  </span>
+                </Tooltip>
               </div>
               <Link
                 to={"/low-stock"}
@@ -833,7 +907,7 @@ const HomePage = () => {
 
             {/* Product List */}
             <div className="p-4 overflow-x-auto categories">
-              {lowStock.map((product, index) => (
+              {lowStock?.map((product, index) => (
                 <div
                   key={index}
                   className="grid grid-cols-[48px_200px_1fr] min-[367px]:grid-cols-[48px_300px_1fr] items-center gap-3 py-3"
@@ -858,21 +932,32 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Out of Stock */}
-          <div className="rounded-lg shadow w-full bg-white h-fit sm:h-[470px]">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="rounded-2xl transition-all duration-300 hover:shadow-md shadow-sm border border-gray-100 w-full bg-white h-fit sm:h-[475px]"
+          >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <div className="flex items-center gap-2 font-semibold text-lg">
                 <div className="bg-red-100 p-2.5 text-red-600 rounded-lg">
                   <AlertTriangle className="w-5 h-5" />
                 </div>
-                <span>Out of Stock</span>
+                <Tooltip title={"Out of Stock"}>
+                  <span
+                    className={clsx("truncate ", [
+                      isOpen && windowWidth > 1024 && "max-w-[102px]",
+                    ])}
+                  >
+                    Out of Stock
+                  </span>
+                </Tooltip>
               </div>
               <Link
                 to={"/out-of-stock"}
-                className="text-sm underline cursor-pointer"
+                className="text-sm underline text-nowrap cursor-pointer"
               >
                 View All
               </Link>
@@ -880,7 +965,7 @@ const HomePage = () => {
 
             {/* Product List */}
             <div className="p-4 overflow-x-auto categories">
-              {outOfStock.map((product, index) => (
+              {outOfStock?.map((product, index) => (
                 <div
                   key={index}
                   className="grid grid-cols-[48px_200px_1fr] min-[367px]:grid-cols-[48px_300px_1fr] items-center gap-3 py-3"
@@ -905,20 +990,32 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
+
           {/* Fast Moving Products */}
-          <div className="rounded-lg shadow w-full bg-white h-fit sm:h-[470px]">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="rounded-2xl transition-all duration-300 hover:shadow-md shadow-sm border border-gray-100 w-full bg-white h-fit sm:h-[475px]"
+          >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <div className="flex items-center gap-2 font-semibold text-lg">
                 <div className="bg-blue-100 p-2.5 text-blue-600 rounded-lg">
                   <Zap className="w-5 h-5" />
                 </div>
-                <span>Fast Moving Products</span>
+                <Tooltip title={"Fast Moving Stock"}>
+                  <span
+                    className={clsx("truncate ", [
+                      isOpen && windowWidth > 1024 && "max-w-[102px]",
+                    ])}
+                  >
+                    Fast Moving Stock
+                  </span>
+                </Tooltip>
               </div>
               <Link
                 to={"/fast-moving"}
-                className="text-sm underline cursor-pointer"
+                className="text-sm underline cursor-pointer text-nowrap"
               >
                 View All
               </Link>
@@ -953,7 +1050,7 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

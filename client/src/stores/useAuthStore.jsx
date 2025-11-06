@@ -38,6 +38,36 @@ export const useAuthStore = create(
         }
       },
 
+      register: async (data, onSuccess) => {
+        set({ authLoading: true });
+        try {
+          const res = await axios.post("auth/register", data);
+
+          if (res.status === 201 || res.status === 200) {
+            const user = res.data.user;
+
+            set({
+              user_id: user.user_id,
+              role: user.role,
+              username: user.username,
+            });
+
+            setTimeout(() => {
+              set({ authLoading: false });
+              toast.success("Account created successfully!");
+              onSuccess?.();
+            }, 1000);
+          }
+        } catch (error) {
+          setTimeout(() => {
+            set({ authLoading: false });
+            toast.error(
+              error.response?.data?.message || "Registration Unsuccessful"
+            );
+          }, 1000);
+        }
+      },
+
       logout: async (onSuccess) => {
         set({ authLoading: true });
         try {

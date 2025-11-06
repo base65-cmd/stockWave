@@ -63,7 +63,7 @@ export const register = async (req, res) => {
     setCookies(res, accessToken, refreshToken); // Set cookies for access and refresh tokens
 
     res.status(201).json({
-      user: user.rows[0],
+      user: user,
       message: "User created successfully",
     });
   } catch (error) {
@@ -74,6 +74,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
 
   try {
     const result = await getUserByEmail(email);

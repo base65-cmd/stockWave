@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import PageHeader from "../../common/components/PageHeader";
 import { useDispatchStore } from "../../stores/useDispatchStore";
 import TableContainer from "../../common/TableContainer";
+import { Spin } from "antd";
 
 const DispatchedGroupedView = () => {
   const { id, name } = useParams();
@@ -66,25 +67,8 @@ const DispatchedGroupedView = () => {
   return (
     <>
       <PageHeader title={`${name}`} />
-      {dispatchLoading ? (
-        // ✅ Loading state
-        <div className="flex h-[420px] justify-center items-center py-10">
-          <div className="flex items-center justify-center space-x-2">
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "0ms" }}
-            ></div>
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            ></div>
-            <div
-              className="w-4 h-4 rounded-full bg-blue-600 animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            ></div>
-          </div>
-        </div>
-      ) : dispatchedItems?.length === 0 ? (
+      <Spin spinning={dispatchLoading} size="large" fullscreen={true} />
+      {dispatchedItems?.length === 0 ? (
         // ✅ Empty state
         <div className="text-center text-gray-500 mt-10">
           No dispatched items found for this vessel.

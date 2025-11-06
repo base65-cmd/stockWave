@@ -14,7 +14,7 @@ import {
 import TableContainer from "../../common/TableContainer";
 import { usePurchaseStore } from "../../stores/usePurchaseStore";
 import DashboardCard from "../../common/components/DashboardCard";
-import { Dropdown, Space } from "antd";
+import { Dropdown, Space, Spin } from "antd";
 import PurchaseOrderDetail from "../../common/components/PurchaseOrderDetail";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -262,7 +262,7 @@ const PurchaseOrders = () => {
           },
         ]}
       />
-
+      <Spin spinning={purchaseLoading} size="large" fullscreen={true}></Spin>
       <div className="p-3 space-y-4">
         {viewPODetail && (
           <PurchaseOrderDetail
@@ -282,7 +282,7 @@ const PurchaseOrders = () => {
               title="Total Orders"
               icon={ShoppingCart}
               icon_bg="bg-green-300"
-              value={purchaseOrderList.length}
+              value={originalPORef.current.length}
               trendPercent={12}
               trendUp={false}
             />
@@ -385,36 +385,23 @@ const PurchaseOrders = () => {
 
         {/* Table Section */}
         <div className="relative bg-white/80 rounded-2xl border border-slate-200 shadow-sm py-3 px-2 sm:px-4 mt-3 overflow-x-auto">
-          {purchaseLoading ? (
-            <div className="flex flex-col h-105 items-center justify-center bg-white/70 backdrop-blur-sm z-50 rounded-2xl">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
-              />
-              <p className="mt-4 text-slate-600 font-medium text-sm">
-                Loading purchase orders...
-              </p>
-            </div>
-          ) : (
-            <TableContainer
-              isPagination
-              isSelect
-              isLoading={purchaseLoading}
-              isGlobalFilter
-              columns={columns || []}
-              data={purchaseOrderList || []}
-              customPageSize={10}
-              divclassName="my-2 col-span-12 overflow-x-auto lg:col-span-12"
-              tableclassName="hover group dataTable w-full text-sm align-middle whitespace-nowrap no-footer"
-              theadclassName="border-y border-slate-200 dark:border-zink-500"
-              trclassName="group-[.stripe]:even:bg-slate-50 group-[.stripe]:dark:even:bg-zink-600 transition-all duration-150 ease-linear group-[.hover]:hover:bg-blue-50"
-              thclassName="px-4 py-2.5 font-semibold text-slate-700 bg-slate-100 text-left"
-              tdclassName="py-2 px-4 border-b border-slate-200"
-              PaginationClassName="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 sm:px-4"
-              tbodyclassName="px-4"
-            />
-          )}
+          <TableContainer
+            isPagination
+            isSelect
+            isLoading={purchaseLoading}
+            isGlobalFilter
+            columns={columns || []}
+            data={purchaseOrderList || []}
+            customPageSize={10}
+            divclassName="my-2 col-span-12 overflow-x-auto lg:col-span-12"
+            tableclassName="hover group dataTable w-full text-sm align-middle whitespace-nowrap no-footer"
+            theadclassName="border-y border-slate-200 dark:border-zink-500"
+            trclassName="group-[.stripe]:even:bg-slate-50 group-[.stripe]:dark:even:bg-zink-600 transition-all duration-150 ease-linear group-[.hover]:hover:bg-blue-50"
+            thclassName="px-4 py-2.5 font-semibold text-slate-700 bg-slate-100 text-left"
+            tdclassName="py-2 px-4 border-b border-slate-200"
+            PaginationClassName="flex flex-col sm:flex-row items-center justify-between mt-4 px-2 sm:px-4"
+            tbodyclassName="px-4"
+          />
         </div>
       </div>
     </div>

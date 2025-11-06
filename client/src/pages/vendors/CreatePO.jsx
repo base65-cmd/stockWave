@@ -16,7 +16,7 @@ import VendorPickerModal from "../../common/components/vendor/VendorPickerModal"
 import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import useVendorStore from "../../stores/useVendorStore";
-import { ConfigProvider, DatePicker, Input, Select, Space } from "antd";
+import { ConfigProvider, DatePicker, Input, Select, Space, Spin } from "antd";
 
 //TODO Update formData to include discount, total, grandTotal, vat.
 // TODO Also make disocunt and vat a dropdown to select it
@@ -90,9 +90,11 @@ export default function PurchaseOrderForm() {
     fetchInventoryByCategory,
     allCategories,
     inventory,
+    inv_loading,
   } = useInventoryStore();
-  const { addPurchaseRecord } = usePurchaseStore();
-  const { fetchFrequentlyDispatchedItems } = useDispatchStore();
+  const { addPurchaseRecord, purchaseLoading } = usePurchaseStore();
+  const { fetchFrequentlyDispatchedItems, dispatchLoading } =
+    useDispatchStore();
   const [items, setItems] = useState(
     editVendorData
       ? editVendorData.items?.map((data) => ({
@@ -234,6 +236,7 @@ export default function PurchaseOrderForm() {
     setItems(new_update);
     setTimeout(() => setSuppressSuggestions(false), 300);
   };
+
   const handleItemChange = (index, field, value) => {
     const updated = [...items];
 
@@ -274,6 +277,7 @@ export default function PurchaseOrderForm() {
 
     return isNaN(vat) ? 0 : vat;
   };
+
   const calcServiceCharge = () => {
     if (serviceChargeType === "customPercent" && customServiceChargePercent) {
       return (
@@ -522,7 +526,11 @@ export default function PurchaseOrderForm() {
           },
         ]}
       />
-
+      <Spin
+        spinning={inv_loading || purchaseLoading || dispatchLoading}
+        size="large"
+        fullscreen={true}
+      ></Spin>
       <VendorPickerModal
         isOpen={pickerOpen}
         onClose={() => setPickerOpen(false)}
@@ -578,6 +586,7 @@ export default function PurchaseOrderForm() {
                       (cat) => cat.name === activeCategory
                     )}
                     ref={categoryScrollRef}
+                    className={"overflow-x-scroll"}
                   >
                     <button
                       className={`px-4 py-1.5 rounded-full text-sm cursor-pointer ${
@@ -938,8 +947,18 @@ export default function PurchaseOrderForm() {
                   </label>
                   <Input
                     type="file"
-                    accept=".pdf"
-                    onChange={(e) => setAttachment(e.target.files[0])}
+                    id="image"
+                    accept="image/*"
+                    onChange={(e) => {
+                      setAttachment(e.target.files[0]);
+                      const reader = new FileReader();
+
+                      reader.onloadend = () => {
+                        console.log(e.target.files[0]);
+                      };
+
+                      reader.readAsDataURL(e.target.files[0]);
+                    }}
                     className="w-full text-sm border border-gray-200 rounded-md px-1.5 py-1.5 bg-white file:border-0 file:bg-gray-100 file:rounded-md file:px-2 file:py-[2px] file:cursor-pointer"
                   />
                 </div>

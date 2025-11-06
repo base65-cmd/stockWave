@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useDispatchStore } from "../../stores/useDispatchStore";
+import { Spin } from "antd";
 
 function LowStock() {
   const [activeStock, setActiveStock] = useState(1);
@@ -21,6 +22,7 @@ function LowStock() {
   const { fetchLocations, locations } = useDispatchStore();
   const {
     inv_loading,
+    loading,
     fetchAllInventory,
     updateInventoryMinimumLevel,
     fetchInventoryById,
@@ -179,6 +181,12 @@ function LowStock() {
   return (
     <div>
       <PageHeader title="Low Stock" />
+
+      <Spin
+        spinning={inv_loading || loading}
+        size="large"
+        fullscreen={true}
+      ></Spin>
       {Object.keys(inventoryById).length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/15 backdrop-blur-[0.5px] flex justify-center items-center overflow-y-auto">
           <div className="relative w-[700px] mx-auto p-6 bg-white rounded-3xl shadow-2xl space-y-8 border border-blue-100">

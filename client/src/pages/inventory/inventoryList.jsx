@@ -1,8 +1,11 @@
+import { Spin } from "antd";
 import InventoryTable from "../../common/components/InventoryTable";
 import PageHeader from "../../common/components/PageHeader";
 import { Import, Plus } from "lucide-react";
+import { useInventoryStore } from "../../stores/useInventoryStore";
 
 const InventoryList = () => {
+  const { inv_loading } = useInventoryStore();
   return (
     <>
       <PageHeader
@@ -22,6 +25,7 @@ const InventoryList = () => {
           },
         ]}
       />
+      <Spin spinning={inv_loading} size="large" fullscreen={true}></Spin>
       <div className="bg-white border border-gray-200 m-3 py-4 h-full rounded-xl shadow-md">
         <InventoryTable />
       </div>

@@ -50,7 +50,7 @@ const AutocompleteInput = ({
       type="text"
       className={`${className} ${
         disabled && "bg-gray-100!"
-      } rounded px-3! py-5 text-sm`}
+      } rounded px-3! text-sm`}
       value={value}
       onChange={(e) => {
         setValue(e.target.value);

@@ -360,6 +360,7 @@ export default function VendorDirectory({ isOpen, onClose, onSelect }) {
                       (cat) => cat.name === activeCategory
                     )}
                     ref={categoryScrollRef}
+                    className={"overflow-x-scroll"}
                   >
                     {allCategories.map((cat, i) => (
                       <button

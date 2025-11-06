@@ -25,10 +25,10 @@ export async function createUser(username, full_name, email, password) {
     const hashedPassword = await hashPassword(password);
     const newUser = await pool.query(
       `INSERT INTO users (username, full_name, email, password_hash) 
-           VALUES ($1, $2, $3, $4) RETURNING username, full_name, email`,
+           VALUES ($1, $2, $3, $4) RETURNING username, full_name, email, user_id`,
       [username, full_name, email, hashedPassword]
     );
-    return newUser;
+    return newUser.rows[0];
   } catch (error) {
     console.log("Error in createUser Function", error.message);
     res.status(500).json({ message: "Server Error", error: error.message });

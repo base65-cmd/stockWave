@@ -21,7 +21,7 @@ import { usePurchaseStore } from "../../stores/usePurchaseStore";
 import InventoryGridLayout from "../../common/components/InventoryGridLayout";
 import clsx from "clsx";
 import SegmentSlider from "../../common/components/SegmentSlider";
-import { ConfigProvider, Input, Popover, Select } from "antd";
+import { ConfigProvider, Input, Popover, Select, Spin } from "antd";
 import useSidebarStore from "../../stores/useSidebarStore";
 
 const options = [
@@ -526,30 +526,32 @@ export default function VendorDirectory() {
     <div className="w-full relative min-h-[calc(100vh-80px)]">
       <PageHeader
         title={"Vendor Directory"}
-        button={[
-          {
-            onClick: () => {
-              view === "grid" ? setView("list") : setView("grid");
-            },
-            icon: view === "list" ? LayoutGrid : List,
-            bgColor: "bg-blue-600",
-          },
-        ]}
+        // button={[
+        //   {
+        //     onClick: () => {
+        //       view === "grid" ? setView("list") : setView("grid");
+        //     },
+        //     icon: view === "list" ? LayoutGrid : List,
+        //     bgColor: "bg-blue-600",
+        //   },
+        // ]}
       />
 
-      {loading ? (
-        <LoadingSpinner />
-      ) : (
-        <AnimatePresence>
-          {vendorDetails && (
-            <VendorProfile
-              profile={selectedVendor}
-              transactions={transactions}
-              close={() => setVendorDetails(false)}
-            />
-          )}
-        </AnimatePresence>
-      )}
+      <Spin
+        size="large"
+        fullscreen={true}
+        spinning={vendorLoading || loading}
+      />
+      <AnimatePresence>
+        {vendorDetails && (
+          <VendorProfile
+            profile={selectedVendor}
+            transactions={transactions}
+            close={() => setVendorDetails(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Mobile Tabs */}
       <div className="min-[450px]:hidden sticky top-20 z-14 w-full">
         <SegmentSlider
@@ -658,6 +660,7 @@ export default function VendorDirectory() {
                       (cat) => cat.name === activeCategory
                     )}
                     ref={categoryScrollRef}
+                    className={"overflow-x-scroll"}
                   >
                     {allCategories.map((cat, i) => (
                       <button
@@ -681,70 +684,47 @@ export default function VendorDirectory() {
               {/* Vendor Cards */}
               {tab !== "By Item" ? (
                 <>
-                  {vendorLoading ||
-                  (vendors.length === 0 &&
-                    !originalVendorsRef.current.length) ? (
-                    <div className="bg-white/90 rounded-2xl shadow-lg p-8 flex flex-col items-center">
+                  <div
+                    className={clsx(
+                      "gap-3",
+                      view === "grid"
+                        ? [
+                            "grid grid-cols-1 min-[482px]:grid-cols-2 min-[675px]:grid-cols-3",
+                            isOpen
+                              ? "min-[850px]:grid-cols-2 min-[960px]:grid-cols-3 min-[1024px]:grid-cols-2 min-[1260px]:grid-cols-3 min-[1500px]:grid-cols-4"
+                              : "min-[850px]:grid-cols-2 min-[960px]:grid-cols-3 min-[1500px]:grid-cols-4",
+                          ]
+                        : "flex flex-col gap-4"
+                    )}
+                  >
+                    {paginatedVendors.map((vendor, index) => (
                       <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          repeat: Infinity,
-                          duration: 1,
-                          ease: "linear",
-                        }}
-                        className="h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"
-                      />
-                      <p className="mt-4 text-slate-600 font-medium text-sm">
-                        Loading vendor details...
-                      </p>
-                    </div>
-                  ) : vendors.length === 0 ? (
-                    <span className="text-gray-500 h-[calc(100vh-280px)] flex justify-center pt-[50%] col-span-4 text-center py-4">
-                      No items found in this category
-                    </span>
-                  ) : (
-                    <div
-                      className={clsx(
-                        "gap-3",
-                        view === "grid"
-                          ? [
-                              "grid grid-cols-1 min-[482px]:grid-cols-2 min-[675px]:grid-cols-3",
-                              isOpen
-                                ? "min-[850px]:grid-cols-2 min-[960px]:grid-cols-3 min-[1024px]:grid-cols-2 min-[1260px]:grid-cols-3 min-[1500px]:grid-cols-4"
-                                : "min-[850px]:grid-cols-2 min-[960px]:grid-cols-3 min-[1500px]:grid-cols-4",
-                            ]
-                          : "flex flex-col gap-4"
-                      )}
-                    >
-                      {paginatedVendors.map((vendor, index) => (
-                        <motion.div
+                        key={vendor.vendor_id}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                      >
+                        <VendorCard
                           key={vendor.vendor_id}
-                          layout
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                        >
-                          <VendorCard
-                            key={vendor.vendor_id}
-                            vendor={vendor}
-                            view={view}
-                            displayVendorDetails={async () => {
-                              const data = await fetchVendorById(
+                          vendor={vendor}
+                          view={view}
+                          displayVendorDetails={async () => {
+                            const data = await fetchVendorById(
+                              vendor.vendor_id
+                            );
+                            const purchaseData =
+                              await fetchPurchaseRecordByVendor(
                                 vendor.vendor_id
                               );
-                              const purchaseData =
-                                await fetchPurchaseRecordByVendor(
-                                  vendor.vendor_id
-                                );
-                              setSelectedVendor(data);
-                              setTransactions(purchaseData);
-                              setVendorDetails(true);
-                            }}
-                          />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
+                            setSelectedVendor(data);
+                            setTransactions(purchaseData);
+                            setVendorDetails(true);
+                          }}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
 
                   {!vendorLoading && paginatedVendors.length > 0 && (
                     <div className="flex justify-between items-center mt-4">

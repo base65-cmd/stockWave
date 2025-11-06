@@ -37,6 +37,9 @@ const BarChartDetails = ({ width, height, data, dataKey, rounded }) => {
       <XAxis
         dataKey="label"
         interval={0}
+        angle={-25}
+        textAnchor="end"
+        height={55}
         tick={{ fill: "#6b7280", fontSize: 12 }}
         axisLine={false}
         tickLine={false}
