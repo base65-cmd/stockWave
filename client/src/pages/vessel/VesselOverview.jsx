@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Spin } from "antd";
 
 const VesselOverview = () => {
-  const { fetchVessels, vessels, dispatchLoading } = useDispatchStore();
+  const { fetchVessels, vessels, vesselLoading } = useDispatchStore();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -28,7 +28,7 @@ const VesselOverview = () => {
   return (
     <div className="min-h-screen">
       <PageHeader title={"Vessel Overview"} />
-      <Spin spinning={dispatchLoading} size="large" fullscreen={true}></Spin>
+      <Spin spinning={vesselLoading} size="large" fullscreen={true}></Spin>
       <div className="min-h-screen m-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {vessels.map((vessel) => (
