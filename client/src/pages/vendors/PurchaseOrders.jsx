@@ -272,6 +272,7 @@ const PurchaseOrders = () => {
               setViewPODetail(false);
               setPurchaseOrderItems([]);
             }}
+            open={viewPODetail}
           />
         )}
 

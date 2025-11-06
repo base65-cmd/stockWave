@@ -1,11 +1,11 @@
-import { Card } from "antd";
+import { Card, Modal } from "antd";
 import { Calendar, User, Truck, DollarSign, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import TableContainer from "../TableContainer";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
-export default function PurchaseOrderDetail({ order, items, exit }) {
+export default function PurchaseOrderDetail({ order, items, exit, open }) {
   if (!order) {
     return (
       <div className="flex items-center justify-center h-full text-gray-500">
@@ -105,20 +105,29 @@ export default function PurchaseOrderDetail({ order, items, exit }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/15 backdrop-blur-[0.5px] flex justify-center overflow-y-auto menu">
+    <div className="">
       {/* Background blur overlay */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.5 }}
-        className="bg-gray-50 rounded-lg p-6 h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-30%)] my-8 animate-slide-up relative"
+      <Modal
+        open={open}
+        onCancel={exit}
+        footer={null}
+        centered={true}
+        className="md:w-[calc(100vw-30%)]!"
+        classNames={{
+          // content: "",
+          wrapper: "py-3!",
+        }}
+        // initial={{ opacity: 0, y: 20 }}
+        // animate={{ opacity: 1, y: 0 }}
+        // exit={{ opacity: 0, y: 20 }}
+        // transition={{ duration: 0.5 }}
+        // className="bg-gray-50 rounded-lg p-6 h-fit min-h-[calc(100vh-64px)] shadow-lg w-[calc(100vw-30%)] my-8 animate-slide-up relative"
       >
         {/* Content */}
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 md:flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
+            <h1 className="text-xl font-bold text-gray-800 flex items-center gap-3">
               <FileText className="w-7 h-7 text-blue-600" />
               Purchase Order: {order.ref_number}
             </h1>
@@ -323,7 +332,7 @@ export default function PurchaseOrderDetail({ order, items, exit }) {
             Back to Purchase Orders
           </button>
         </div>
-      </motion.div>
+      </Modal>
     </div>
   );
 }

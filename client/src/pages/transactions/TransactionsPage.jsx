@@ -27,7 +27,7 @@ const TransactionsPage = () => {
       />
       <Spin spinning={dispatchLoading} size="large" fullscreen={true}></Spin>
       <div className="bg-white border border-gray-200 m-3 py-4 h-full rounded-xl shadow-md">
-        <TransactionsTable isSelect={false} isGlobal={true} />
+        <TransactionsTable isSelect={true} isGlobal={true} />
       </div>
     </>
   );

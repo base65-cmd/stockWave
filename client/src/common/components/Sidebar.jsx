@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -191,6 +191,14 @@ const Sidebar = () => {
     }
   }, [windowWidth]);
 
+  useEffect(() => {
+    if (windowWidth < 1024 && isOpen) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "auto";
+    }
+  }, [isOpen]);
+
   function toggleMenu(index) {
     if (activeMenu === index) {
       clearActiveMenu();
@@ -208,6 +216,7 @@ const Sidebar = () => {
       toggleSidebar();
     }
   }
+
   return (
     <nav
       className={`${

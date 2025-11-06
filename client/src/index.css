@@ -7,44 +7,77 @@ body {
   font-family: "Nunito", sans-serif;
 }
 
-.menu::-webkit-scrollbar {
-  width: 5px; /* Slim scrollbar */
-}
+/* .menu::-webkit-scrollbar { */
+/* width: 5px; Slim scrollbar */
+/* } */
 
-.categories::-webkit-scrollbar {
-  height: 5px;
-}
+/* .categories::-webkit-scrollbar { */
+/* height: 5px; */
+/* } */
 
-html::-webkit-scrollbar {
-  width: 5px;
-}
+/* html::-webkit-scrollbar { */
+/* width: 5px; */
+/* } */
 
 html {
   font-size: clamp(15px, 1vw + 0.5rem, 16px);
 }
 
 /* styles.css or global CSS */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-.scrollbar-hide {
-  -ms-overflow-style: none; /* IE & Edge */
-  scrollbar-width: none; /* Firefox */
+/* .scrollbar-hide::-webkit-scrollbar { */
+/* display: none; Chrome, Safari */
+/* } */
+/* .scrollbar-hide { */
+/* -ms-overflow-style: none; IE & Edge */
+/* scrollbar-width: none; Firefox */
+/* } */
+
+/* .menu::-webkit-scrollbar-track, */
+/* .categories::-webkit-scrollbar-track, */
+/* html::-webkit-scrollbar-track { */
+/* border-radius: 0.8rem; */
+/* } */
+
+/* .menu::-webkit-scrollbar-thumb, */
+/* .categories::-webkit-scrollbar-thumb, */
+/* html::-webkit-scrollbar-thumb { */
+/* background: #9ca3af; */
+/* border-radius: 0.8rem; */
+/* transition: all 300ms; */
+/* } */
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.menu::-webkit-scrollbar-track,
-.categories::-webkit-scrollbar-track,
-html::-webkit-scrollbar-track {
-  border-radius: 0.8rem;
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
 }
 
-.menu::-webkit-scrollbar-thumb,
-.categories::-webkit-scrollbar-thumb,
-html::-webkit-scrollbar-thumb {
-  background: #9ca3af;
-  border-radius: 0.8rem;
-  transition: all 300ms;
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8c8c8c;
+}
+
+/* Firefox */
+/* * {
+  scrollbar-width: thin;
+  scrollbar-color: #bfbfbf transparent;
+} */
 
 @keyframes slideUp {
   from {
