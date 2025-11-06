@@ -155,3 +155,21 @@ html {
 .animate-pulse-border {
   animation: pulseBorder 3s ease-in-out infinite;
 }
+
+/* 🧠 Prevent mobile auto-zoom on inputs */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  -webkit-appearance: none;
+}
+
+/* Optional: smooth focus outline for consistency */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4); /* blue focus ring */
+}
