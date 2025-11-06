@@ -42,13 +42,8 @@ const HomePage = () => {
   const [endDate, setEndDate] = useState(null);
   const [inputValue, setInputValue] = useState("Product_230 PN-00230");
   const { fetchAllDispatchedItems, dispatchLoading } = useDispatchStore();
-  const {
-    fetchAllInventory,
-    getLowInventory,
-    getOutOfStock,
-    loading,
-    inv_loading,
-  } = useInventoryStore();
+  const { fetchAllInventory, getLowInventory, getOutOfStock, inv_loading } =
+    useInventoryStore();
   const [lowStock, setLowStock] = useState([]);
   const [outOfStock, setOutOfStock] = useState([]);
   const { username } = useAuthStore();
@@ -68,9 +63,37 @@ const HomePage = () => {
     "Voyager’s Dream": "Voyager",
   };
 
+  //Start of low stock
+  useEffect(() => {
+    const fetchLowStock = async () => {
+      const lowStockItems = await getLowInventory();
+      setLowStock(lowStockItems);
+    };
+    fetchLowStock();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+  // End of low stock
+
+  // Start of out of stock
+  useEffect(() => {
+    const fetchOutOfStock = async () => {
+      const outOfStockItems = await getOutOfStock();
+      setOutOfStock(outOfStockItems);
+    };
+    fetchOutOfStock();
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const inventory = await fetchAllInventory();
+        const uniqueInventory = inventory.filter(
+          (item, index, self) =>
+            index === self.findIndex((t) => t.item_id === item.item_id)
+        );
+
+        setAllInventory(uniqueInventory);
+
         const dispatchData = await fetchAllDispatchedItems();
 
         const recordsResult = dispatchData.map((entry) => ({
@@ -98,14 +121,6 @@ const HomePage = () => {
         );
 
         setDispatchedData(resultArray);
-
-        const inventory = await fetchAllInventory();
-        const uniqueInventory = inventory.filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.item_id === item.item_id)
-        );
-
-        setAllInventory(uniqueInventory);
       } catch (error) {}
     };
     fetchData();
@@ -159,25 +174,6 @@ const HomePage = () => {
     setDispatchedData(resultArray);
     setInputValue(label);
   };
-
-  //Start of low stock
-  useEffect(() => {
-    const fetchLowStock = async () => {
-      const lowStockItems = await getLowInventory();
-      setLowStock(lowStockItems);
-    };
-    fetchLowStock();
-  }, []);
-  // End of low stock
-
-  // Start of out of stock
-  useEffect(() => {
-    const fetchOutOfStock = async () => {
-      const outOfStockItems = await getOutOfStock();
-      setOutOfStock(outOfStockItems);
-    };
-    fetchOutOfStock();
-  }, []);
 
   const WelcomeBanner = ({ username = "there" }) => {
     return (
@@ -515,11 +511,7 @@ const HomePage = () => {
   return (
     <div className="">
       <PageHeader title="Dashboard" />
-      <Spin
-        spinning={inv_loading || loading || dispatchLoading}
-        size="large"
-        fullscreen={true}
-      ></Spin>
+      <Spin spinning={inv_loading} size="large" fullscreen={true}></Spin>
       <div className="p-6 space-y-6 max-[450px]:space-y-3 max-[450px]:p-3">
         <WelcomeBanner username={username} />
         <div

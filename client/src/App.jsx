@@ -71,7 +71,7 @@ function App() {
                         element={<InventoryPage mode="edit" />}
                       />
                       <Route
-                        path="/inventory/create"
+                        path="/inventory-create"
                         element={<InventoryPage mode="create" />}
                       />
                       <Route path="/sis" element={<SIS />} />
@@ -153,6 +153,10 @@ function App() {
                       <Route
                         path="/user-management"
                         element={<DevPage title="User Management" />}
+                      />
+                      <Route
+                        path="/fast-moving"
+                        element={<DevPage title="Fast Moving Stock" />}
                       />
                     </Routes>
                   </aside>

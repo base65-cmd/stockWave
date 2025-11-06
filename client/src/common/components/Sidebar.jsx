@@ -36,19 +36,19 @@ const sidebarMenu = [
       },
       {
         name: "Add Items",
-        path: "/inventory/create",
+        path: "/inventory-create",
       },
       {
         name: "Stock Adjustment",
         path: "/stock-adjustment",
       },
       {
-        name: "Inventory Report",
-        path: "/inventory-report",
-      },
-      {
         name: "Low Stock",
         path: "/low-stock",
+      },
+      {
+        name: "Fast Moving Stock",
+        path: "/fast-moving",
       },
     ],
   },

@@ -2,23 +2,28 @@
 import { Link } from "react-router-dom";
 import { Card, Typography, List, Button } from "antd";
 import { ToolOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
 
 const { Title, Paragraph } = Typography;
 
 const activePages = [
   { name: "Dashboard", path: "/" },
   { name: "Inventory List", path: "/inventory" },
-  { name: "Add Items", path: "/inventory/create" },
+  { name: "Add Items", path: "/inventory-create" },
   { name: "SIS", path: "/sis" },
   { name: "Transaction History", path: "/sis-transactions" },
   { name: "Vessel Overview", path: "/vessel" },
   { name: "e-BinCard", path: "/ebincard" },
   { name: "Low Stock", path: "/low-stock" },
   { name: "Purchase Orders", path: "/purchase-order" },
+  { name: "Create POs", path: "/purchase-order/create" },
   { name: "Vendor Directory", path: "/vendor" },
 ];
 
 export default function DevPage({ title }) {
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   return (
     <div className="flex justify-center items-center min-h-[80vh] bg-[#f7f7f7] p-6">
       <Card

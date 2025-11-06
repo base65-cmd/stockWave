@@ -697,33 +697,40 @@ export default function VendorDirectory() {
                         : "flex flex-col gap-4"
                     )}
                   >
-                    {paginatedVendors.map((vendor, index) => (
-                      <motion.div
-                        key={vendor.vendor_id}
-                        layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                      >
-                        <VendorCard
+                    {(paginatedVendors.length === 0 && !vendorLoading) ||
+                    loading ? (
+                      <span className="text-gray-500 col-span-4 text-center py-4">
+                        No items found in this category
+                      </span>
+                    ) : (
+                      paginatedVendors.map((vendor, index) => (
+                        <motion.div
                           key={vendor.vendor_id}
-                          vendor={vendor}
-                          view={view}
-                          displayVendorDetails={async () => {
-                            const data = await fetchVendorById(
-                              vendor.vendor_id
-                            );
-                            const purchaseData =
-                              await fetchPurchaseRecordByVendor(
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                        >
+                          <VendorCard
+                            key={vendor.vendor_id}
+                            vendor={vendor}
+                            view={view}
+                            displayVendorDetails={async () => {
+                              const data = await fetchVendorById(
                                 vendor.vendor_id
                               );
-                            setSelectedVendor(data);
-                            setTransactions(purchaseData);
-                            setVendorDetails(true);
-                          }}
-                        />
-                      </motion.div>
-                    ))}
+                              const purchaseData =
+                                await fetchPurchaseRecordByVendor(
+                                  vendor.vendor_id
+                                );
+                              setSelectedVendor(data);
+                              setTransactions(purchaseData);
+                              setVendorDetails(true);
+                            }}
+                          />
+                        </motion.div>
+                      ))
+                    )}
                   </div>
 
                   {!vendorLoading && paginatedVendors.length > 0 && (

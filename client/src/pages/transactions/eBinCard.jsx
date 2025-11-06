@@ -52,7 +52,7 @@ const EBincard = () => {
     const fetchData = async () => {
       try {
         const dispatchData = await fetchAllDispatchedItems();
-
+        window.scrollTo({ top: 0, behavior: "smooth" });
         const records = dispatchData.map((entry) => ({
           itemId: entry.item_id,
           stockId: entry.stock_id,

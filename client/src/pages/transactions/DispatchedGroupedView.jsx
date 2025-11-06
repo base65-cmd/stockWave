@@ -19,7 +19,7 @@ const DispatchedGroupedView = () => {
         console.error("Failed to fetch dispatched items:", error);
       }
     };
-
+    window.scrollTo({ top: 0, behavior: "smooth" });
     fetchItems();
   }, []);
 
@@ -68,10 +68,12 @@ const DispatchedGroupedView = () => {
     <>
       <PageHeader title={`${name}`} />
       <Spin spinning={dispatchLoading} size="large" fullscreen={true} />
-      {dispatchedItems?.length === 0 ? (
+      {dispatchedItems?.length === 0 && !dispatchLoading ? (
         // ✅ Empty state
-        <div className="text-center text-gray-500 mt-10">
-          No dispatched items found for this vessel.
+        <div className=" text-gray-500 min-h-[calc(100vh-164px)] flex items-center justify-center">
+          <span className="text-lg ">
+            No dispatched items found for this vessel.
+          </span>
         </div>
       ) : (
         // ✅ Data loaded state

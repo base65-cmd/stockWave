@@ -36,11 +36,11 @@ function NavBar() {
   }
   const items = [
     {
-      label: <a>My Profile</a>,
+      label: <Link to={"/user-management"}>My Profile</Link>,
       key: "0",
     },
     {
-      label: <a>Settings</a>,
+      label: <Link to={"/settings"}>Settings</Link>,
       key: "1",
     },
     {
@@ -48,14 +48,14 @@ function NavBar() {
     },
     {
       label: (
-        <a
-          href="/login"
+        <Link
+          to="/login"
           className="flex gap-2"
           onClick={async () => await logout()}
         >
           <LogOut className="w-5 h-5" strokeWidth={1} />
           Logout
-        </a>
+        </Link>
       ),
       key: "3",
     },

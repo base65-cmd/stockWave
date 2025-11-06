@@ -128,9 +128,9 @@ export default function PurchaseOrderForm() {
 
       setPopularDispatch(popular);
       setAllInventory(uniqueInventory);
-      console.log(editVendorData);
     };
     fetchData();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   useEffect(() => {

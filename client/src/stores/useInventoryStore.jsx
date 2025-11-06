@@ -7,6 +7,7 @@ export const useInventoryStore = create((set) => ({
   allCategories: [],
   loading: false,
   inv_loading: false,
+  inventory_by_id_loading: false,
   shelfLocations: [],
   locations: [],
   setInventory: (inventory) => set({ inventory }),
@@ -32,10 +33,10 @@ export const useInventoryStore = create((set) => ({
     }
   },
   fetchInventoryById: async (id) => {
-    set({ loading: true });
+    set({ inventory_by_id_loading: true });
     try {
       const res = await axios.get(`/inventory/${id}`);
-      set({ inventory: res.data.inventory[0], loading: false });
+      set({ inventory: res.data.inventory[0], inventory_by_id_loading: false });
       return res.data.inventory[0];
     } catch (error) {
       set({ loading: false });
