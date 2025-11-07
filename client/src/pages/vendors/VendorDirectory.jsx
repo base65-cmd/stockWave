@@ -697,9 +697,8 @@ export default function VendorDirectory() {
                         : "flex flex-col gap-4"
                     )}
                   >
-                    {(paginatedVendors.length === 0 && !vendorLoading) ||
-                    loading ? (
-                      <span className="text-gray-500 col-span-4 text-center py-4">
+                    {paginatedVendors.length === 0 && !vendorLoading ? (
+                      <span className="text-gray-500 col-span-4 text-center h-[50vh] flex items-center justify-center py-4">
                         No items found in this category
                       </span>
                     ) : (
